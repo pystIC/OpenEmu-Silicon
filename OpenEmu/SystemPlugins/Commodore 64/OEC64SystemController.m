@@ -36,7 +36,7 @@
         fprintf(f, "C64 System Plugin +load at %ld\n", time(NULL));
         
         // Try to manually load the Core Plugin to see if process allows it
-        const char *corePath = "/Users/barriesanders/Library/Application Support/OpenEmu/Cores/VICE.oecoreplugin/Contents/MacOS/VICE";
+        const char *corePath = "/Users/barriesanders/Library/Application Support/OpenEmuARM64/Cores/VICE.oecoreplugin/Contents/MacOS/VICE";
         void *handle = dlopen(corePath, RTLD_NOW);
         if (handle) {
             fprintf(f, "SUCCESS: Manually dlopened VICE core at %s\n", corePath);

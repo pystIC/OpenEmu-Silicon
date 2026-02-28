@@ -30,7 +30,7 @@
 
 #import "OEGridView.h"
 
-#import "OpenEmu-Swift.h"
+#import "OpenEmuARM64-Swift.h"
 
 NSNotificationName const OEMediaViewControllerDidSetSelectionIndexesNotification = @"OEMediaViewControllerDidSetSelectionIndexesNotification";
 

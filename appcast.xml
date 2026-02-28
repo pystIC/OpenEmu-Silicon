@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>OpenEmu Changelog</title>
-    <link>https://github.com/bazley82/OpenEmu-Port/releases</link>
+    <link>https://github.com/bazley82/OpenEmuARM64/releases</link>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
      <item>
@@ -18,9 +18,9 @@
         ]]>
       </description>
       <pubDate>Wed, 28 Jan 2026 14:00:00 +1000</pubDate>
-      <enclosure url="https://github.com/bazley82/OpenEmu-Port/releases/download/v2.4.2/OpenEmu-ARM64.zip"
-                 sparkle:version="2.4.2"
-                 sparkle:shortVersionString="2.4.2"
+      <enclosure url="https://github.com/bazley82/OpenEmuARM64/releases/download/v1.0.0/OpenEmuARM64.zip"
+                 sparkle:version="1.0.0"
+                 sparkle:shortVersionString="1.0.0"
                  type="application/octet-stream" />
     </item>
   </channel>

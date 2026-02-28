@@ -29,7 +29,7 @@
 #import "OEGridGameCell.h"
 #import "OECoverGridDataSourceItem.h"
 
-#import "OpenEmu-Swift.h"
+#import "OpenEmuARM64-Swift.h"
 
 #pragma mark - ImageKit Private Headers
 #import "IKImageBrowserView.h"

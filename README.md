@@ -1,4 +1,4 @@
-# OpenEmu (AI-Powered Apple Silicon Port)
+# OpenEmuARM64 (Native Apple Silicon Port)
 
 ![OpenEmu Screenshot](http://openemu.org/img/intro-md.png)
 
@@ -18,7 +18,7 @@ This version of OpenEmu has been specifically patched to run natively on Apple S
 - **Custom Design:** Features a new, high-resolution "Liquid Glass" application icon, optimized for macOS Big Sur and Monterey/Ventura/Sonoma aesthetics.
 
 ## Quick Start
-You can download the pre-compiled native app from the **[Releases](https://github.com/bazley82/OpenEmu-Port/releases)** section.
+You can download the pre-compiled native app from the **[Releases](https://github.com/bazley82/OpenEmuARM64/releases)** section.
 
 ---
 
