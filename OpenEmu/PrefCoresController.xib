@@ -50,7 +50,6 @@
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                                 <connections>
-                                                    <binding destination="0hM-aV-idd" name="value" keyPath="objectValue" id="kkh-E4-RuE"/>
                                                 </connections>
                                             </textField>
                                         </subviews>
@@ -89,8 +88,6 @@
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                                 <connections>
-                                                    <binding destination="gN8-El-DRI" name="value" keyPath="objectValue" id="FAC-j3-8sz"/>
-                                                    <binding destination="gN8-El-DRI" name="toolTip" keyPath="objectValue" id="sXb-sJ-AEr"/>
                                                 </connections>
                                             </textField>
                                         </subviews>
@@ -129,7 +126,6 @@
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
                                                 <connections>
-                                                    <binding destination="7mR-ms-kh4" name="value" keyPath="objectValue" id="eYj-mi-mE4"/>
                                                 </connections>
                                             </textField>
                                         </subviews>
@@ -154,7 +150,6 @@
                                                 </buttonCell>
                                                 <connections>
                                                     <action selector="updateOrInstall:" target="-2" id="oLd-rV-uFL"/>
-                                                    <binding destination="PgT-HZ-5zA" name="title" keyPath="objectValue" id="4di-bF-uw1"/>
                                                 </connections>
                                             </button>
                                         </subviews>
