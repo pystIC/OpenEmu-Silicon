@@ -44,3 +44,6 @@ kit_build.log
 retail_build.log
 vice_build.log
 *.zip
+
+# Compiled test binaries
+test_dlopen
