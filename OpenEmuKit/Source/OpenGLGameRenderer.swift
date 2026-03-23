@@ -26,7 +26,7 @@ import Foundation
 import OpenEmuBase
 import OpenGL.GLTypes
 @_implementationOnly import Atomics
-@_implementationOnly import os.log
+internal import os.log
 
 class BaseOpenGLGameRenderer: OpenGLGameRenderer {
     let gameCore: OEGameCore

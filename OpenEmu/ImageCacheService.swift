@@ -24,7 +24,7 @@
 
 import Foundation
 
-final class ImageCacheService {
+final class ImageCacheService: @unchecked Sendable {
     private var cache = NSCache<NSString, NSImage>()
     
     private static let queue = DispatchQueue(label: "org.openemu.OpenEmu.imageLoader", qos: .userInteractive, attributes: [.concurrent], autoreleaseFrequency: .inherit, target: nil)

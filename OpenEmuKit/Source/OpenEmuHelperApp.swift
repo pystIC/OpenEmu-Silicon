@@ -28,7 +28,7 @@ import OpenEmuBase
 import OpenEmuSystem
 import OpenEmuKitPrivate
 import OpenEmuShaders
-@_implementationOnly import os.log
+internal import os.log
 
 extension OSLog {
     static let display  = OSLog(subsystem: "org.openemu.OpenEmuKit", category: "display")

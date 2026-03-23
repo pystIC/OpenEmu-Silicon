@@ -92,9 +92,8 @@ final class HomebrewViewController: NSViewController {
         currentDownload?.cancel()
         
         let download = Download(url: homebrewGamesURL)
-        weak var blockDL = download
-        download.completionHandler = { [self] destination, error in
-            if currentDownload == blockDL {
+        download.completionHandler = { [self, weak download] destination, error in
+            if currentDownload == download {
                 currentDownload = nil
             }
             if let nsErr = error as? CocoaError, nsErr.code == .userCancelled {

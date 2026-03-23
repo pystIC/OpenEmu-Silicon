@@ -23,8 +23,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import Foundation
-@_implementationOnly import OpenEmuSystem.OEDeviceManager
-@_implementationOnly import os.log
+internal import OpenEmuSystem.OEDeviceManager
+internal import os.log
 
 @objc public class OpenEmuXPCHelperApp: OpenEmuHelperApp {
     var mainListener: NSXPCListener!

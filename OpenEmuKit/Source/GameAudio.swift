@@ -24,7 +24,7 @@
 
 import Foundation
 import AVFoundation
-@_implementationOnly import os.log
+internal import os.log
 import OpenEmuBase.OEGameCore
 
 extension OSLog {

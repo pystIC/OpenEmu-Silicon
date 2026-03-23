@@ -52,7 +52,7 @@ enum OEImportErrorCode: Int {
 
 typealias ImportItemCompletionBlock = (NSManagedObjectID?) -> Void
 
-final class ImportOperation: Operation, NSCopying {
+final class ImportOperation: Operation, NSCopying, @unchecked Sendable {
     
     enum ExitStatus {
         case none, errorResolvable, errorFatal, success
