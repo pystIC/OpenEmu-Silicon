@@ -22,7 +22,7 @@
 #include "types.h"
 #include "context.h"
 
-#if defined(USE_OPENGL) && !defined(LIBRETRO) && !defined(TARGET_IPHONE)
+#if defined(USE_OPENGL) && !defined(LIBRETRO) && !defined(TARGET_IPHONE) && !defined(TARGET_MAC)
 	#include <glad/gl.h>
 #endif
 
@@ -80,7 +80,7 @@ private:
 
 #include "libretro.h"
 
-#elif defined(TARGET_IPHONE)
+#elif defined(TARGET_IPHONE) || defined(TARGET_MAC)
 
 #include "osx.h"
 
