@@ -1,4 +1,4 @@
-# OpenEmuARM64 — Native Apple Silicon Port
+# OpenEmu-Silicon — Native Apple Silicon Port
 
 <p align="center">
   <img src="docs/images/openemu-icon.png" width="128" alt="OpenEmu"/>
@@ -22,7 +22,7 @@ This is a community-maintained fork of OpenEmu, rebuilt to run natively on M-ser
 
 ## Download
 
-Get the latest build from the **[Releases](https://github.com/chris-p-bacon-sudo/OpenEmuARM64/releases)** page.
+Get the latest build from the **[Releases](https://github.com/chris-p-bacon-sudo/OpenEmu-Silicon/releases)** page.
 
 ---
 
