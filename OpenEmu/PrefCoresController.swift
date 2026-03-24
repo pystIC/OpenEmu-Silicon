@@ -143,7 +143,7 @@ extension PrefCoresController: NSTableViewDataSource {
             
         } else if ident == .versionColumn {
             if plugin.isDownloading {
-                return plugin
+                return nil
             } else if plugin.canBeInstalled {
                 return NSLocalizedString("Install", comment: "Install Core")
             } else if plugin.hasUpdate {
@@ -157,7 +157,7 @@ extension PrefCoresController: NSTableViewDataSource {
                 return plugin.version
             }
         }
-        return plugin
+        return nil
     }
 }
 
@@ -177,12 +177,14 @@ extension PrefCoresController: NSTableViewDelegate {
         if ident == .coreColumn {
             let view = tableView.makeView(withIdentifier: .coreNameCell, owner: self) as! NSTableCellView
             let color: NSColor = plugin.canBeInstalled ? .disabledControlTextColor : .labelColor
+            view.textField!.stringValue = plugin.name
             view.textField!.textColor = color
             return view
             
         } else if ident == .systemColumn {
             let view = tableView.makeView(withIdentifier: .systemListCell, owner: self) as! NSTableCellView
             let color: NSColor = plugin.canBeInstalled ? .disabledControlTextColor : .labelColor
+            view.textField!.stringValue = plugin.systemNames.joined(separator: ", ")
             view.textField!.textColor = color
             return view
             
