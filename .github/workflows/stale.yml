@@ -1,0 +1,46 @@
+name: Stale Issues
+
+on:
+  schedule:
+    # Run daily at 01:00 UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    name: Mark and close stale issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Issues
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          stale-issue-label: stale
+          stale-issue-message: >
+            Hi there! This issue hasn't had any activity in 60 days, so it's
+            been marked as stale. That doesn't mean it's been forgotten — it
+            just means it hasn't moved forward recently.
+
+            If this is still relevant to you, please leave a comment and it
+            will be taken off the stale list. If things have changed and the
+            issue no longer applies, feel free to close it yourself. Either
+            way, thanks for taking the time to report it.
+          close-issue-message: >
+            This issue has been automatically closed after 14 days with no
+            further activity. If the problem is still happening, please feel
+            free to reopen it or open a new issue — just include your macOS
+            version, chip model, and steps to reproduce so we can pick up
+            where we left off.
+
+          # Pull requests — never mark stale
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+
+          # Don't touch issues with these labels
+          exempt-issue-labels: 'pinned,security,in progress,help wanted'
