@@ -908,6 +908,16 @@ DQ
                                                 <action selector="showOEIssues:" target="-1" id="qPI-Hb-6UM"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="rBg-7K-zX2"/>
+                                        <menuItem title="Report a Bug" id="pLm-4Q-vN8">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="boolean" keyPath="localizeTitle" value="YES"/>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="showReportBug:" target="-1" id="Wq3-jT-8cY"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="boolean" keyPath="localizeTitle" value="YES"/>

@@ -43,7 +43,8 @@ class AppDelegate: NSObject {
     static let userGuideAddress = "https://github.com/OpenEmu/OpenEmu/wiki/User-guide"
     static let releaseNotesAddress = "https://github.com/OpenEmu/OpenEmu/wiki/Release-notes"
     static let feedbackAddress = "https://github.com/OpenEmu/OpenEmu/issues"
-    
+    static let bugReportAddress = "https://github.com/chris-p-bacon-sudo/OpenEmu-Silicon/issues/new"
+
     @IBOutlet weak var fileMenu: NSMenu!
     @IBOutlet weak var helpMenu: NSMenu!
     
@@ -498,7 +499,35 @@ class AppDelegate: NSObject {
     @IBAction func showOEIssues(_ sender: AnyObject?) {
         NSWorkspace.shared.open(URL(string: AppDelegate.feedbackAddress)!)
     }
-    
+
+    @IBAction func showReportBug(_ sender: AnyObject?) {
+        let macOSVersion = ProcessInfo.processInfo.operatingSystemVersionString
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+        let body = """
+            **macOS Version:** \(macOSVersion)
+            **App Version:** \(appVersion)
+
+            **Description:**
+            <!-- Please describe the bug here -->
+
+            **Steps to Reproduce:**
+            1.
+            2.
+
+            **Expected Behavior:**
+
+            **Actual Behavior:**
+            """
+        var components = URLComponents(string: AppDelegate.bugReportAddress)!
+        components.queryItems = [
+            URLQueryItem(name: "labels", value: "bug"),
+            URLQueryItem(name: "body", value: body),
+        ]
+        if let url = components.url {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
     @IBAction func showAppSupportFolder(_ sender: AnyObject?) {
         NSWorkspace.shared.open(.oeApplicationSupportDirectory)
     }
