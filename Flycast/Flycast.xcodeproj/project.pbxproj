@@ -154,6 +154,7 @@
 		45DCC347335EDA60A562E04E /* flycast/core/deps/xbrz/xbrz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6282E59C05AB86A142551B96 /* flycast/core/deps/xbrz/xbrz.cpp */; };
 		464E446E3F3677C9AA0EEF56 /* flycast/core/hw/naomi/naomi_flashrom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C82419B952DE196036F3A707 /* flycast/core/hw/naomi/naomi_flashrom.cpp */; };
 		46A14332C34E6C4ACDE82607 /* OpenEmu/FlycastGameCore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF6EDD2FC9A4A0D718B0B /* OpenEmu/FlycastGameCore.mm */; };
+		51DB143EB47C431B9651C2F3511BDB7B /* OpenEmu/flycast_platform_stubs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE0BF19A98E54E489398F180911453B6 /* OpenEmu/flycast_platform_stubs.cpp */; };
 		4846C5DE96E2AA54FA4E8391 /* Sort.c in Sources */ = {isa = PBXBuildFile; fileRef = F3F85AAFCAB3E26662649BD2 /* Sort.c */; };
 		4AC73BEEAA7285D885926367 /* flycast/core/deps/libzip/lib/zip_error_to_str.c in Sources */ = {isa = PBXBuildFile; fileRef = 7CC4DCFC8F5B2BBAD5C33004 /* flycast/core/deps/libzip/lib/zip_error_to_str.c */; };
 		4B54CAAEFCE97A0414C5DD16 /* flycast/core/deps/libchdr/deps/zstd-1.5.6/lib/common/fse_decompress.c in Sources */ = {isa = PBXBuildFile; fileRef = 76A384E7E78BEE3CEAD0E316 /* flycast/core/deps/libchdr/deps/zstd-1.5.6/lib/common/fse_decompress.c */; };
@@ -688,6 +689,7 @@
 		584372FF193A3E8A5AE4DE9B /* flycast/core/rend/gles/gles.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = flycast/core/rend/gles/gles.cpp; sourceTree = SOURCE_ROOT; };
 		587FBD6A49C74C638312502A /* flycast/core/deps/vixl/aarch64/instructions-aarch64.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "flycast/core/deps/vixl/aarch64/instructions-aarch64.cc"; sourceTree = SOURCE_ROOT; };
 		58CAF6EDD2FC9A4A0D718B0B /* OpenEmu/FlycastGameCore.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenEmu/FlycastGameCore.mm; sourceTree = SOURCE_ROOT; };
+		FE0BF19A98E54E489398F180911453B6 /* OpenEmu/flycast_platform_stubs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OpenEmu/flycast_platform_stubs.cpp; sourceTree = SOURCE_ROOT; };
 		59C5F0AA64461A3A6867D86A /* flycast/core/deps/libzip/lib/zip_fread.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = flycast/core/deps/libzip/lib/zip_fread.c; sourceTree = SOURCE_ROOT; };
 		59DAAF5327257C75670DB79F /* flycast/core/rend/gles/postprocess.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = flycast/core/rend/gles/postprocess.cpp; sourceTree = SOURCE_ROOT; };
 		5A1D79D25BB2C3C4304B3E02 /* flycast/core/deps/libzip/lib/zip_set_file_compression.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = flycast/core/deps/libzip/lib/zip_set_file_compression.c; sourceTree = SOURCE_ROOT; };
@@ -1157,6 +1159,7 @@
 				54A87E76D29E3EEF7F41ABDC /* flycast/core/deps/nowide/src/filebuf.cpp */,
 				0DCBAAF6347F6AA8D2869201 /* flycast/core/hw/flashrom/flashrom.cpp */,
 				58CAF6EDD2FC9A4A0D718B0B /* OpenEmu/FlycastGameCore.mm */,
+				FE0BF19A98E54E489398F180911453B6 /* OpenEmu/flycast_platform_stubs.cpp */,
 				76A384E7E78BEE3CEAD0E316 /* flycast/core/deps/libchdr/deps/zstd-1.5.6/lib/common/fse_decompress.c */,
 				1D3FB7541EEECFF38DB60932 /* flycast/core/ui/game_scanner.cpp */,
 				AA9434F23590113531F51C21 /* flycast/core/input/gamepad_device.cpp */,
@@ -1624,6 +1627,7 @@
 				719835B49263F0B99DA82D1A /* flycast/core/deps/nowide/src/filebuf.cpp in Sources */,
 				27D4D9264B1361463CBDE41E /* flycast/core/hw/flashrom/flashrom.cpp in Sources */,
 				46A14332C34E6C4ACDE82607 /* OpenEmu/FlycastGameCore.mm in Sources */,
+				51DB143EB47C431B9651C2F3511BDB7B /* OpenEmu/flycast_platform_stubs.cpp in Sources */,
 				4B54CAAEFCE97A0414C5DD16 /* flycast/core/deps/libchdr/deps/zstd-1.5.6/lib/common/fse_decompress.c in Sources */,
 				2F00AABB39D018193C25654D /* flycast/core/ui/game_scanner.cpp in Sources */,
 				89B20E1FE10C0444F2E2104C /* flycast/core/input/gamepad_device.cpp in Sources */,
@@ -2052,8 +2056,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"${DEVELOPER_FRAMEWORKS_DIR}",
-					"$(PROJECT_DIR)/../OpenEmu-SDK/build/Release",
-					"$(PROJECT_DIR)/../OpenEmu-SDK/build/Debug",
+					"$(BUILT_PRODUCTS_DIR)",
 				);
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2263,8 +2266,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"${DEVELOPER_FRAMEWORKS_DIR}",
-					"$(PROJECT_DIR)/../OpenEmu-SDK/build/Release",
-					"$(PROJECT_DIR)/../OpenEmu-SDK/build/Debug",
+					"$(BUILT_PRODUCTS_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",

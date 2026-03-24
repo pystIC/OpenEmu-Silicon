@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with Flycast.  If not, see <https://www.gnu.org/licenses/>.
 */
-#if defined(TARGET_IPHONE) && !defined(LIBRETRO)
+#if (defined(TARGET_IPHONE) || defined(TARGET_MAC)) && !defined(LIBRETRO)
 #include "gl_context.h"
 
 OSXGraphicsContext theGLContext;
