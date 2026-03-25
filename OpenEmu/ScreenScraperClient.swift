@@ -92,8 +92,6 @@ final class ScreenScraperClient {
 
         var components = URLComponents(string: "https://www.screenscraper.fr/api2/jeuInfos.php")!
         var queryItems: [URLQueryItem] = [
-            URLQueryItem(name: "devid",     value: ScreenScraperSecrets.devID),
-            URLQueryItem(name: "devpassword", value: ScreenScraperSecrets.devPassword),
             URLQueryItem(name: "softname",  value: "OpenEmu-Silicon"),
             URLQueryItem(name: "output",    value: "json"),
             URLQueryItem(name: "systemeid", value: String(systemID)),
@@ -107,12 +105,14 @@ final class ScreenScraperClient {
             return nil
         }
 
-        // Append optional user credentials if configured
+        // Append user credentials if configured — used as both dev and user identity
         let username = UserDefaults.standard.string(forKey: "ScreenScraperUsername") ?? ""
-        let password = UserDefaults.standard.string(forKey: "ScreenScraperPassword") ?? ""
-        if !username.isEmpty {
-            queryItems.append(URLQueryItem(name: "ssid",       value: username))
-            queryItems.append(URLQueryItem(name: "sspassword", value: password))
+        let password = ScreenScraperCredentials.storedPassword() ?? ""
+        if !username.isEmpty && !password.isEmpty {
+            queryItems.append(URLQueryItem(name: "devid",       value: username))
+            queryItems.append(URLQueryItem(name: "devpassword", value: password))
+            queryItems.append(URLQueryItem(name: "ssid",        value: username))
+            queryItems.append(URLQueryItem(name: "sspassword",  value: password))
         }
 
         components.queryItems = queryItems

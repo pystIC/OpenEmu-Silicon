@@ -31,7 +31,6 @@ build_log*.txt
 *.tar.gz
 Releases/
 OpenEmu/OEGoogleDriveSecrets.swift
-OpenEmu/ScreenScraperSecrets.swift
 
 # AI agent session files
 .claude/
