@@ -702,7 +702,7 @@ final class OELibraryDatabase: NSObject {
                     }
                     if rom.serial == nil,
                        let serial = serial {
-                        rom.md5 = serial
+                        rom.serial = serial
                     }
                     if rom.header == nil,
                        let header = header {

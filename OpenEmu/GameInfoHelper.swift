@@ -195,7 +195,27 @@ final class GameInfoHelper {
                 result.removeValue(forKey: "region")
                 resultDict.merge(result) { (_, new) in new }
             }
-            
+
+            // ScreenScraper fallback: if OpenVGDB returned no box art, try ScreenScraper
+            if resultDict["boxImageURL"] == nil || (resultDict["boxImageURL"] as? String)?.isEmpty == true {
+                let romName = url.map { ($0.lastPathComponent as NSString).deletingPathExtension }
+                if let ss = ScreenScraperClient.shared.fetchGameInfo(
+                    md5: md5,
+                    romName: romName,
+                    systemIdentifier: systemIdentifier
+                ) {
+                    if let boxURL = ss.boxImageURL {
+                        resultDict["boxImageURL"] = boxURL.absoluteString
+                    }
+                    if resultDict["gameTitle"] == nil, let title = ss.gameTitle {
+                        resultDict["gameTitle"] = title
+                    }
+                    if resultDict["gameDescription"] == nil, let desc = ss.gameDescription {
+                        resultDict["gameDescription"] = desc
+                    }
+                }
+            }
+
             return resultDict
         }
     }
