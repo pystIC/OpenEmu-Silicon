@@ -113,6 +113,17 @@
     Tracking issue: https://github.com/chris-p-bacon-sudo/openemu-silicon/issues/25
   -->
 
+  <!-- ✅ ARM64 native — locally built, no public appcast yet -->
+  <core
+    id="org.openemu.ppsspp"
+    name="PPSSPP"
+    appcastURL="">
+    <description>Sony PSP emulator</description>
+    <systems>
+      <system id="openemu.system.psp">Sony PSP</system>
+    </systems>
+  </core>
+
   <!--
     The following cores are x86_64 only in the official OpenEmu releases.
     They require ARM64 builds to be hosted before they can be re-enabled here.

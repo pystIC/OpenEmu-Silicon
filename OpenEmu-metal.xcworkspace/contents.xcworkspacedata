@@ -31,4 +31,7 @@
    <FileRef
       location = "group:Potator-Core/Potator.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:PPSSPP/PPSSPP-Core/PPSSPP.xcodeproj">
+   </FileRef>
 </Workspace>
