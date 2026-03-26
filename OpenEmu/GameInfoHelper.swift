@@ -37,17 +37,28 @@ final class GameInfoHelper {
         
         DispatchQueue(label: "org.openemu.OpenEmu.GameInfoHelper").sync {
             
-            guard let database = database else {
-                return [:]
-            }
-            
             lazy var resultDict: [String : Any] = [:]
-            
+
             let systemIdentifier = gameInfo["systemIdentifier"] as! String
             var header = gameInfo["header"] as? String
             var serial = gameInfo["serial"] as? String
             let md5 = gameInfo["md5"] as? String
             let url = gameInfo["URL"] as? URL
+
+            guard let database = database else {
+                // OpenVGDB unavailable — still try ScreenScraper if credentials are configured
+                let ssUsername = UserDefaults.standard.string(forKey: "ScreenScraperUsername") ?? ""
+                let ssPassword = ScreenScraperCredentials.storedPassword() ?? ""
+                guard !ssUsername.isEmpty && !ssPassword.isEmpty else { return [:] }
+                let romName = url.map { ($0.lastPathComponent as NSString).deletingPathExtension }
+                var fallback: [String: Any] = [:]
+                if let ss = ScreenScraperClient.shared.fetchGameInfo(md5: md5, romName: romName, systemIdentifier: systemIdentifier) {
+                    if let boxURL = ss.boxImageURL { fallback["boxImageURL"] = boxURL.absoluteString }
+                    if let title = ss.gameTitle    { fallback["gameTitle"] = title }
+                    if let desc  = ss.gameDescription { fallback["gameDescription"] = desc }
+                }
+                return fallback
+            }
             let archiveFileIndex = gameInfo["archiveFileIndex"] as? NSNumber
             
             var isSystemWithHashlessROM = hashlessROMCheck(forSystem: systemIdentifier)
@@ -195,7 +206,32 @@ final class GameInfoHelper {
                 result.removeValue(forKey: "region")
                 resultDict.merge(result) { (_, new) in new }
             }
-            
+
+            // ScreenScraper: run when credentials are configured (SS wins for art),
+            // or as fallback when OpenVGDB found no box art.
+            let ssUsername = UserDefaults.standard.string(forKey: "ScreenScraperUsername") ?? ""
+            let ssPassword = ScreenScraperCredentials.storedPassword() ?? ""
+            let hasSScredentials = !ssUsername.isEmpty && !ssPassword.isEmpty
+            let missingBoxArt = resultDict["boxImageURL"] == nil || (resultDict["boxImageURL"] as? String)?.isEmpty == true
+            if hasSScredentials || missingBoxArt {
+                let romName = url.map { ($0.lastPathComponent as NSString).deletingPathExtension }
+                if let ss = ScreenScraperClient.shared.fetchGameInfo(
+                    md5: md5,
+                    romName: romName,
+                    systemIdentifier: systemIdentifier
+                ) {
+                    if let boxURL = ss.boxImageURL {
+                        resultDict["boxImageURL"] = boxURL.absoluteString
+                    }
+                    if resultDict["gameTitle"] == nil, let title = ss.gameTitle {
+                        resultDict["gameTitle"] = title
+                    }
+                    if resultDict["gameDescription"] == nil, let desc = ss.gameDescription {
+                        resultDict["gameDescription"] = desc
+                    }
+                }
+            }
+
             return resultDict
         }
     }

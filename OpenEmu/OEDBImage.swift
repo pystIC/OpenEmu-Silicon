@@ -251,7 +251,7 @@ final class OEDBImage: OEDBItem {
             }
         }
         set {
-            source = newValue?.standardizedFileURL.absoluteString
+            source = newValue?.absoluteString
         }
     }
     
