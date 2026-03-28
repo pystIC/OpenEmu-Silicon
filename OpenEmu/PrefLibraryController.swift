@@ -53,6 +53,8 @@ final class PrefLibraryController: NSViewController {
             scrollView.widthAnchor.constraint(equalToConstant: size.width),
             scrollView.heightAnchor.constraint(equalToConstant: size.height)
         ])
+
+        availableLibrariesViewController.loadData()
     }
     
     deinit {
