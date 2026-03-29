@@ -73,26 +73,30 @@ jobs:
             CODE_SIGN_IDENTITY="Developer ID Application" \
             CODE_SIGN_STYLE=Manual
 
-      # ── Export (signs the .app with Developer ID) ─────────────────────────
-      - name: Export signed app
+      # ── Extract signed .app from archive ─────────────────────────────────────
+      # Skips xcodebuild -exportArchive (method names changed in Xcode 26).
+      # The app is already signed with Developer ID during the archive step.
+      - name: Extract app from archive
         run: |
-          # Inject team ID into export options
-          sed "s/\$(APPLE_TEAM_ID)/${{ secrets.APPLE_TEAM_ID }}/g" \
-            Scripts/ExportOptions.plist > $RUNNER_TEMP/ExportOptions.plist
+          cp -R \
+            "$RUNNER_TEMP/OpenEmu.xcarchive/Products/Applications/OpenEmu.app" \
+            "$RUNNER_TEMP/OpenEmu.app"
 
-          xcodebuild -exportArchive \
-            -archivePath $RUNNER_TEMP/OpenEmu.xcarchive \
-            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
-            -exportPath $RUNNER_TEMP/export
+          # Verify signing before submitting — catches issues early
+          codesign --verify --deep --strict "$RUNNER_TEMP/OpenEmu.app"
+          echo "Code signing verified OK"
 
-      # ── Notarize ─────────────────────────────────────────────────────────────
+      # ── Notarize .app first, then wrap in DMG ─────────────────────────────────
+      # Per community advice: notarize and staple the .app before creating the DMG.
+      # Building the DMG around an already-stapled app avoids notarization failures
+      # caused by embedded frameworks in nested containers.
       - name: Zip app for notarization
         run: |
           ditto -c -k --keepParent \
-            "$RUNNER_TEMP/export/OpenEmu.app" \
+            "$RUNNER_TEMP/OpenEmu.app" \
             "$RUNNER_TEMP/OpenEmu-notarize.zip"
 
-      - name: Notarize
+      - name: Notarize app
         run: |
           xcrun notarytool submit "$RUNNER_TEMP/OpenEmu-notarize.zip" \
             --apple-id "${{ secrets.APPLE_ID }}" \
@@ -100,31 +104,23 @@ jobs:
             --team-id "${{ secrets.APPLE_TEAM_ID }}" \
             --wait
 
-      - name: Staple notarization ticket
+      - name: Staple notarization ticket to app
         run: |
-          xcrun stapler staple "$RUNNER_TEMP/export/OpenEmu.app"
+          xcrun stapler staple "$RUNNER_TEMP/OpenEmu.app"
 
-      # ── DMG ──────────────────────────────────────────────────────────────────
+      # ── DMG — wrap the already-notarized, stapled app ─────────────────────────
       - name: Create DMG
         run: |
           hdiutil create \
-            -volname "OpenEmu" \
-            -srcfolder "$RUNNER_TEMP/export/OpenEmu.app" \
+            -volname "OpenEmu-Silicon" \
+            -srcfolder "$RUNNER_TEMP/OpenEmu.app" \
             -ov \
             -format UDZO \
-            "$RUNNER_TEMP/OpenEmu.dmg"
-
-      - name: Notarize DMG
-        run: |
-          xcrun notarytool submit "$RUNNER_TEMP/OpenEmu.dmg" \
-            --apple-id "${{ secrets.APPLE_ID }}" \
-            --password "${{ secrets.APPLE_ID_PASSWORD }}" \
-            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-            --wait
+            "$RUNNER_TEMP/OpenEmu-Silicon.dmg"
 
       - name: Staple DMG
         run: |
-          xcrun stapler staple "$RUNNER_TEMP/OpenEmu.dmg"
+          xcrun stapler staple "$RUNNER_TEMP/OpenEmu-Silicon.dmg"
 
       # ── Release ──────────────────────────────────────────────────────────────
       - name: Determine tag name
@@ -142,7 +138,7 @@ jobs:
           tag_name: ${{ steps.tag.outputs.name }}
           name: "OpenEmu-Silicon ${{ steps.tag.outputs.name }}"
           draft: true
-          files: ${{ runner.temp }}/OpenEmu.dmg
+          files: ${{ runner.temp }}/OpenEmu-Silicon.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
