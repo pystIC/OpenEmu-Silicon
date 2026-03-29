@@ -1,27 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>OpenEmu Changelog</title>
+    <title>OpenEmu-Silicon Changelog</title>
     <link>https://github.com/nickybmon/OpenEmu-Silicon/releases</link>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
-     <item>
-      <title>Version 2.4.2</title>
+    <item>
+      <title>OpenEmu-Silicon 1.0.0</title>
       <description>
         <![CDATA[
-        <h2>OpenEmu v2.4.2</h2>
+        <h2>OpenEmu-Silicon 1.0.0</h2>
+        <p>First public release — native Apple Silicon port of OpenEmu.</p>
         <ul>
-          <li><strong>Core Management:</strong> New multi-column layout for better visibility.</li>
-          <li><strong>Crash Fix:</strong> Resolved stability issue when clicking update buttons.</li>
-          <li><strong>Updates:</strong> Direct 'Update' and 'Revert' actions for installed cores.</li>
+          <li>All 25+ emulation cores rebuilt for ARM64 — no Rosetta required</li>
+          <li><strong>Sony PSP</strong> — PPSSPP-Core fully integrated</li>
+          <li><strong>Nintendo 64</strong> — Mupen64Plus revived</li>
+          <li><strong>Sega Dreamcast</strong> — migrated from Reicast to Flycast</li>
+          <li><strong>ScreenScraper cover art</strong> — automatic box art fetching from ScreenScraper.eu</li>
+          <li>SNES9x updated to 1.63, mGBA updated to 0.10.5</li>
+          <li>Pokémon Mini and Watara Supervision fixed</li>
+          <li>macOS 26 (Tahoe) compatibility fixes throughout</li>
         </ul>
         ]]>
       </description>
-      <pubDate>Wed, 28 Jan 2026 14:00:00 +1000</pubDate>
-      <enclosure url="https://github.com/nickybmon/OpenEmu-Silicon/releases/download/v1.0.0/OpenEmu-Silicon.zip"
-                 sparkle:version="1.0.0"
-                 sparkle:shortVersionString="1.0.0"
-                 type="application/octet-stream" />
+      <pubDate>Sun, 30 Mar 2026 00:00:00 +0000</pubDate>
+      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+      <!-- sparkle:version must match CFBundleVersion (integer build number) -->
+      <!-- sparkle:edSignature: run `./bin/sign_update OpenEmu-Silicon.dmg` with your private EdDSA key -->
+      <!-- length: byte size of the DMG (run `stat -f%z OpenEmu-Silicon.dmg`) -->
+      <enclosure
+        url="https://github.com/nickybmon/OpenEmu-Silicon/releases/download/v1.0.0/OpenEmu-Silicon.dmg"
+        sparkle:version="1"
+        sparkle:shortVersionString="1.0.0"
+        sparkle:edSignature="FILL_IN_AFTER_RELEASE"
+        length="FILL_IN_BYTE_SIZE"
+        type="application/octet-stream"/>
     </item>
   </channel>
 </rss>

@@ -16,7 +16,7 @@
 
 This is a community-maintained fork of OpenEmu, rebuilt to run natively on M-series Macs. All emulation cores have been ported to ARM64. The app runs on macOS 11.0+ and has been tested on macOS Sequoia and macOS 26 (Tahoe).
 
-> **Note:** Code signing and notarization are not yet fully sorted. On first launch, right-click the app and choose Open to bypass Gatekeeper.
+> **Download:** Get the latest signed DMG from the **[Releases](https://github.com/nickybmon/OpenEmu-Silicon/releases)** page. The app is notarized — no Gatekeeper workaround needed.
 
 ---
 
@@ -94,8 +94,7 @@ See [`docs/roadmap.md`](docs/roadmap.md) for the full plan with implementation d
 
 ## Known Issues
 
-- Code signing / notarization not yet sorted — right-click > Open on first launch
-- A few cores have quirks on Apple Silicon still being investigated
+- A few cores have quirks on Apple Silicon still being investigated (see open issues)
 - Input Monitoring permission may need to be granted manually in System Settings → Privacy & Security
 
 ---
