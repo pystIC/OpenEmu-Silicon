@@ -78,9 +78,14 @@ jobs:
       # The app is already signed with Developer ID during the archive step.
       - name: Extract app from archive
         run: |
-          cp -R \
-            "$RUNNER_TEMP/OpenEmu.xcarchive/Products/Applications/OpenEmu.app" \
-            "$RUNNER_TEMP/OpenEmu.app"
+          APP_PATH=$(find "$RUNNER_TEMP/OpenEmu.xcarchive/Products" -name "OpenEmu.app" -maxdepth 4 | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: OpenEmu.app not found in archive. Archive contents:"
+            find "$RUNNER_TEMP/OpenEmu.xcarchive/Products" -maxdepth 4
+            exit 1
+          fi
+          echo "Found app at: $APP_PATH"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/OpenEmu.app"
 
           # Verify signing before submitting — catches issues early
           codesign --verify --deep --strict "$RUNNER_TEMP/OpenEmu.app"
