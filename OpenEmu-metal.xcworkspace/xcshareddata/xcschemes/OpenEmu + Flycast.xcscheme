@@ -17,7 +17,7 @@
                BlueprintIdentifier = "37D11C698E63435D3667B4EA"
                BuildableName = "Flycast.oecoreplugin"
                BlueprintName = "Flycast"
-               ReferencedContainer = "group:Flycast/Flycast.xcodeproj">
+               ReferencedContainer = "container:Flycast/Flycast.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,7 +29,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8D15AC270486D014006FF6A4"
-               BuildableName = "OpenEmuARM64.app"
+               BuildableName = "OpenEmu.app"
                BlueprintName = "OpenEmu"
                ReferencedContainer = "container:OpenEmu/OpenEmu.xcodeproj">
             </BuildableReference>
@@ -59,7 +59,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8D15AC270486D014006FF6A4"
-            BuildableName = "OpenEmuARM64.app"
+            BuildableName = "OpenEmu.app"
             BlueprintName = "OpenEmu"
             ReferencedContainer = "container:OpenEmu/OpenEmu.xcodeproj">
          </BuildableReference>
@@ -76,7 +76,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8D15AC270486D014006FF6A4"
-            BuildableName = "OpenEmuARM64.app"
+            BuildableName = "OpenEmu.app"
             BlueprintName = "OpenEmu"
             ReferencedContainer = "container:OpenEmu/OpenEmu.xcodeproj">
          </BuildableReference>

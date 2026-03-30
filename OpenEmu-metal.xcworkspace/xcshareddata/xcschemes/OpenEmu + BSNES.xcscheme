@@ -17,7 +17,7 @@
                BlueprintIdentifier = "8D5B49AC048680CD000E48DA"
                BuildableName = "BSNES.oecoreplugin"
                BlueprintName = "BSNES"
-               ReferencedContainer = "group:BSNES/BSNES.xcodeproj">
+               ReferencedContainer = "container:BSNES/BSNES.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,7 +29,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8D15AC270486D014006FF6A4"
-               BuildableName = "OpenEmuARM64.app"
+               BuildableName = "OpenEmu.app"
                BlueprintName = "OpenEmu"
                ReferencedContainer = "container:OpenEmu/OpenEmu.xcodeproj">
             </BuildableReference>
@@ -59,7 +59,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8D15AC270486D014006FF6A4"
-            BuildableName = "OpenEmuARM64.app"
+            BuildableName = "OpenEmu.app"
             BlueprintName = "OpenEmu"
             ReferencedContainer = "container:OpenEmu/OpenEmu.xcodeproj">
          </BuildableReference>
@@ -76,7 +76,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8D15AC270486D014006FF6A4"
-            BuildableName = "OpenEmuARM64.app"
+            BuildableName = "OpenEmu.app"
             BlueprintName = "OpenEmu"
             ReferencedContainer = "container:OpenEmu/OpenEmu.xcodeproj">
          </BuildableReference>
