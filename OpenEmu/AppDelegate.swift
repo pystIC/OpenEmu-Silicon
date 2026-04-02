@@ -880,6 +880,7 @@ extension AppDelegate: NSMenuDelegate {
             return
         }
 
+        OECoreMigration.runIfNeeded()
         loadPlugins(with: database)
         removeIncompatibleSaveStates(from: database)
 
