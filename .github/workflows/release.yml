@@ -206,6 +206,7 @@ jobs:
             "$RUNNER_TEMP/OpenEmu-Silicon.dmg"
 
       - name: Staple DMG
+        continue-on-error: true  # DMG staple requires notarizing the DMG itself; the .app inside is already stapled which is sufficient for Gatekeeper
         run: |
           xcrun stapler staple "$RUNNER_TEMP/OpenEmu-Silicon.dmg"
 
