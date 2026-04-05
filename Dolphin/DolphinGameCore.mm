@@ -44,8 +44,8 @@
 #include <stdatomic.h>
 
 #import <AppKit/AppKit.h>
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 
 #define SAMPLERATE 48000
 #define SIZESOUNDBUFFER 48000 / 60 * 4
@@ -72,6 +72,9 @@ DolphinGameCore *_current = 0;
     NSString *_dolphinCoreModule;
     OEIntSize _dolphinCoreAspect;
     OEIntSize _dolphinCoreScreen;
+
+    id<MTLTexture> _dolMetalTexture;
+    CAMetalLayer  *_dolMetalLayer;
 }
 
 - (instancetype)init
@@ -137,9 +140,8 @@ DolphinGameCore *_current = 0;
 {
     if (!_isInitialized)
     {
-        [self.renderDelegate willRenderFrameOnAlternateThread];
-
-        dol_host->SetPresentationFBO((int)[[self.renderDelegate presentationFramebuffer] integerValue]);
+        dol_host->SetMetalLayer(_dolMetalLayer);
+        dol_host->SetMetalTexture(_dolMetalTexture);
 
         if(dol_host->LoadFileAtPath())
             _isInitialized = true;
@@ -183,7 +185,7 @@ DolphinGameCore *_current = 0;
 # pragma mark - Video
 - (OEGameCoreRendering)gameCoreRendering
 {
-    return OEGameCoreRenderingOpenGL3Video;
+    return OEGameCoreRenderingMetal2;
 }
 
 - (BOOL)hasAlternateRenderingThread
@@ -191,10 +193,50 @@ DolphinGameCore *_current = 0;
     return YES;
 }
 
-- (BOOL)needsDoubleBufferedFBO
+- (void)createMetalTextureWithDevice:(id<MTLDevice>)device
 {
-    return NO;
+    // Texture OE composites from — needs RenderTarget so Dolphin can write into it.
+    MTLTextureDescriptor *desc = [MTLTextureDescriptor
+        texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+                                     width:_dolphinCoreScreen.width
+                                    height:_dolphinCoreScreen.height
+                                 mipmapped:NO];
+    desc.usage       = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    desc.storageMode = MTLStorageModePrivate;
+    _dolMetalTexture = [device newTextureWithDescriptor:desc];
+
+    // Clear to black so frame 0 composites black instead of uninitialized magenta.
+    id<MTLCommandQueue> q = [device newCommandQueue];
+    id<MTLCommandBuffer> cb = [q commandBuffer];
+    MTLRenderPassDescriptor *rpd = [MTLRenderPassDescriptor renderPassDescriptor];
+    rpd.colorAttachments[0].texture    = _dolMetalTexture;
+    rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
+    rpd.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
+    rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+    [[cb renderCommandEncoderWithDescriptor:rpd] endEncoding];
+    [cb commit];
+    [cb waitUntilCompleted];
+
+    // Sizing layer: gives Dolphin's Metal backend real surface dimensions for SetupSurface().
+    // BindBackbuffer bypasses this layer's drawables and uses _dolMetalTexture directly.
+    _dolMetalLayer              = [CAMetalLayer layer];
+    _dolMetalLayer.device       = device;
+    _dolMetalLayer.pixelFormat  = MTLPixelFormatBGRA8Unorm;
+    _dolMetalLayer.framebufferOnly = NO;
+    _dolMetalLayer.bounds       = CGRectMake(0, 0, _dolphinCoreScreen.width, _dolphinCoreScreen.height);
+    _dolMetalLayer.contentsScale = 1.0;
 }
+
+- (id<MTLTexture>)metalTexture
+{
+    return _dolMetalTexture;
+}
+
+// MTL3DGameRenderer.update() reads these to resolve OEMTLPixelFormat even in Metal2 mode.
+// GL_BGRA (0x80E1) + GL_UNSIGNED_INT_8_8_8_8_REV (0x8367) → OEMTLPixelFormat.BGRA8Unorm,
+// matching the MTLPixelFormatBGRA8Unorm texture we create above.
+- (GLenum)pixelFormat  { return 0x80E1; } // GL_BGRA
+- (GLenum)pixelType    { return 0x8367; } // GL_UNSIGNED_INT_8_8_8_8_REV
 
 - (const void *)videoBuffer
 {
@@ -218,21 +260,6 @@ DolphinGameCore *_current = 0;
 
 - (void) SetScreenSize:(int)width :(int)height
 {
-}
-
-- (GLenum)pixelFormat
-{
-    return GL_RGBA;
-}
-
-- (GLenum)pixelType
-{
-    return GL_UNSIGNED_BYTE;
-}
-
-- (GLenum)internalPixelFormat
-{
-    return GL_RGBA;
 }
 
 # pragma mark - Audio
