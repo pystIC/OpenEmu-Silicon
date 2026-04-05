@@ -29,7 +29,7 @@
 #import <OpenEmuBase/OETimingUtils.h>
 #import <OpenEmuBase/OEAudioBuffer.h>
 #import "OEGCSystemResponderClient.h"
-#import "Wii/OEWiiSystemResponderClient.h"
+#import "../OpenEmu/SystemPlugins/Wii/OEWiiSystemResponderClient.h"
 
 @class OERingBuffer;
 
