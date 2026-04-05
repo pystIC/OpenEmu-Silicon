@@ -52,7 +52,7 @@ final class SidebarController: NSViewController {
             // bypassing the ROM importer.
             if let context = database?.mainThreadContext {
                 dbToken = NotificationCenter.default.addObserver(
-                    forName: .NSManagedObjectContextObjectsDidChange,
+                    forName: .NSManagedObjectContextDidSave,
                     object: context,
                     queue: .main
                 ) { [weak self] notification in
