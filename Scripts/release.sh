@@ -104,6 +104,21 @@ xcodebuild archive \
 [ -d "$ARCHIVE_PATH" ] || die "Archive not found at expected path: $ARCHIVE_PATH"
 echo "Archive: $ARCHIVE_PATH"
 
+# ── 1.5. Upload dSYMs to Sentry ───────────────────────────────────────────────
+step "Uploading dSYMs to Sentry (symbolicated crash reports)"
+
+if command -v sentry-cli &>/dev/null; then
+  sentry-cli upload-dif \
+    --org openemu-silicon \
+    --project openemu-silicon \
+    "$ARCHIVE_PATH/dSYMs/" \
+    || echo "WARNING: dSYM upload to Sentry failed — crash stack traces may be unreadable. Check sentry-cli auth."
+else
+  echo "WARNING: sentry-cli not installed. Crash stack traces in Sentry will not be symbolicated."
+  echo "         Install with: brew install getsentry/tools/sentry-cli"
+  echo "         Then authenticate: sentry-cli login"
+fi
+
 # ── 2. Notarize (re-sign + notarize + DMG + staple) ──────────────────────────
 step "2/5  Re-signing, notarizing, and creating DMG"
 

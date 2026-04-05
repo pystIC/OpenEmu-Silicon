@@ -841,6 +841,8 @@ extension AppDelegate: NSMenuDelegate {
         notificationCenter.removeObserver(self, name: NSApplication.didFinishRestoringWindowsNotification, object: nil)
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
+        SentryService.configureIfNeeded()
+
         // Get the “Customize Touch Bar…” menu to display in the View menu.
         NSApp.isAutomaticCustomizeTouchBarMenuItemEnabled = true
         
