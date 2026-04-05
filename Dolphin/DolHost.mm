@@ -140,8 +140,8 @@ void DolHost::Init(std::string supportDirectoryPath, std::string cpath)
     Config::SetBase(Config::MAIN_DSP_THREAD, true);
     Config::SetBase(Config::MAIN_AUDIO_VOLUME, 0);
     
-    //Split CPU thread from GPU
-    Config::SetBase(Config::MAIN_CPU_THREAD, true);
+    // Single-core mode: CPU and GPU on same thread (simpler, safer for OE process model)
+    Config::SetBase(Config::MAIN_CPU_THREAD, false);
     
     //Analitics
     Config::SetBase(Config::MAIN_ANALYTICS_PERMISSION_ASKED, true);
@@ -268,10 +268,11 @@ void DolHost::Reset()
 
 void DolHost::UpdateFrame()
 {
-    //Core::HostDispatchJobs();
-    
+    // Dispatch any pending host jobs (state changes, UI callbacks) each frame
+    Core::HostDispatchJobs(Core::System::GetInstance());
+
     //Input::OpenEmu_Input_Update();
-    
+
     if(_onBoot) _onBoot = false;
 }
 
