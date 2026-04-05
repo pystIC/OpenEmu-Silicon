@@ -91,4 +91,7 @@
    <FileRef
       location = "group:picodrive/Picodrive.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Dolphin/Dolphin.xcodeproj">
+   </FileRef>
 </Workspace>
