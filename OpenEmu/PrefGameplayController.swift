@@ -41,20 +41,15 @@ final class PrefGameplayController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         loadShaderMenu()
-        
+        addSliders()
+
         token = NotificationCenter.default.addObserver(forName: .shaderModelCustomShadersDidChange, object: nil, queue: .main) { [weak self] _ in
             guard let self = self else { return }
-            
+
             self.loadShaderMenu()
         }
-    }
-    
-    override func viewDidAppear() {
-        super.viewDidAppear()
-        guard saturationSlider == nil else { return }
-        addSliders()
     }
     
     deinit {
@@ -115,7 +110,6 @@ final class PrefGameplayController: NSViewController {
 
         // ── Insert rows above Shader ──────────────────────────────────────
         // Insert Gamma at 0 first, then Saturation at 0 → Saturation ends up on top.
-        let sizeBefore = view.fittingSize
         gridView.insertRow(at: 0, with: [gamLabel, gamRow])
         gridView.insertRow(at: 0, with: [satLabel, satRow])
 
@@ -135,15 +129,6 @@ final class PrefGameplayController: NSViewController {
             gridView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 30),
             gridView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -30)
         ])
-
-        // ── Grow the window upward to fit the new rows ────────────────────
-        view.layoutSubtreeIfNeeded()
-        let deltaH = view.fittingSize.height - sizeBefore.height
-        if let window = view.window, deltaH > 0 {
-            var wf = window.frame
-            wf.size.height += deltaH
-            window.setFrame(wf, display: true, animate: false)
-        }
 
         saturationSlider = satSlider
         saturationLabel  = satPct

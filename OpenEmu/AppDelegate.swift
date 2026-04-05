@@ -39,10 +39,10 @@ extension OEDBRom: CachedLastPlayedInfoItem {}
 @objcMembers
 class AppDelegate: NSObject {
     
-    static let websiteAddress = "http://openemu.org/"
-    static let userGuideAddress = "https://github.com/OpenEmu/OpenEmu/wiki/User-guide"
-    static let releaseNotesAddress = "https://github.com/OpenEmu/OpenEmu/wiki/Release-notes"
-    static let feedbackAddress = "https://github.com/OpenEmu/OpenEmu/issues"
+    static let websiteAddress = "https://github.com/nickybmon/OpenEmu-Silicon"
+    static let userGuideAddress = "https://github.com/nickybmon/OpenEmu-Silicon/wiki"
+    static let releaseNotesAddress = "https://github.com/nickybmon/OpenEmu-Silicon/releases"
+    static let feedbackAddress = "https://github.com/nickybmon/OpenEmu-Silicon/issues/new/choose"
     static let bugReportAddress = "https://github.com/nickybmon/OpenEmu-Silicon/issues/new"
 
     @IBOutlet weak var fileMenu: NSMenu!
