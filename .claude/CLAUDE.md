@@ -202,6 +202,7 @@ Custom commands live in `.claude/commands/`. Invoke with `/command-name`.
 | `/review <PR_NUMBER>` | PR review flow: gh pr checkout, build check, list test behaviors from the PR description, report results |
 | `/new-issue` | Guided issue creation: search for duplicates first, select template, enforce title rules, apply labels |
 | `/triage-issue <N>` | Review a bug report or feature request: check completeness, post a comment asking for missing details/screenshots, apply labels |
+| `/prep-release [X.Y.Z]` | Full release prep: bump version, build check, commit, check release notes, run pre-flight, hand off release script command |
 
 ---
 
