@@ -46,6 +46,13 @@ If original OpenEmu meets your needs today, there's no urgency. But if you've ha
 
 Get the latest build from the **[Releases](https://github.com/nickybmon/OpenEmu-Silicon/releases)** page.
 
+### Install via Homebrew
+
+```bash
+brew tap nickybmon/OpenEmu-Silicon
+brew install --cask openemu-silicon
+```
+
 ---
 
 ## What's New
