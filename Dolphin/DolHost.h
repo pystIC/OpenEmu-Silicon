@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 #import "OEGCSystemResponderClient.h"
-#import "Wii/OEWiiSystemResponderClient.h"
+#import "../OpenEmu/SystemPlugins/Wii/OEWiiSystemResponderClient.h"
 
 #include "Core/GeckoCode.h"
 #include "Core/ActionReplay.h"
