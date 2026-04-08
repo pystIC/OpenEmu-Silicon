@@ -28,7 +28,10 @@ Fixes #
 # 1. Check out this PR
 gh pr checkout <PR_NUMBER> --repo nickybmon/OpenEmu-Silicon
 
-# 2. Build
+# 2. Build — use the scheme that covers the changed target.
+#    For main app changes: -scheme OpenEmu
+#    For Flycast core changes: -scheme "OpenEmu + Flycast" with 'clean build'
+#    (incremental builds will not recompile core C++ files)
 xcodebuild \
   -workspace OpenEmu-metal.xcworkspace \
   -scheme OpenEmu \
@@ -36,7 +39,11 @@ xcodebuild \
   -destination 'platform=macOS,arch=arm64' \
   build 2>&1 | tail -20
 
-# 3. Launch
+# 3. If this PR touches a core (Flycast, etc.), install the rebuilt binary:
+#    cp -f ~/Library/Developer/Xcode/DerivedData/OpenEmu-metal-*/Build/Products/Debug/<CoreName>.oecoreplugin/Contents/MacOS/<CoreName> \
+#      ~/Library/Application\ Support/OpenEmu/Cores/<CoreName>.oecoreplugin/Contents/MacOS/<CoreName>
+
+# 4. Launch
 open ~/Library/Developer/Xcode/DerivedData/OpenEmu-*/Build/Products/Debug/OpenEmu.app
 ```
 
