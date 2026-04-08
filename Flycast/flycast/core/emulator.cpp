@@ -1000,22 +1000,22 @@ void Emulator::start()
 				ThreadName _("Flycast-emu");
 				InitAudio();
 
-			try {
-				while (state == Running || singleStep || stepRangeTo != 0)
-				{
-					startTime = sh4_sched_now64();
-					renderTimeout = false;
-					runInternal();
-					if (!ggpo::nextFrame())
-						break;
+				try {
+					while (state == Running || singleStep || stepRangeTo != 0)
+					{
+						startTime = sh4_sched_now64();
+						renderTimeout = false;
+						runInternal();
+						if (!ggpo::nextFrame())
+							break;
+					}
+					TermAudio();
+				} catch (...) {
+					setNetworkState(false);
+					getSh4Executor()->Stop();
+					TermAudio();
+					throw;
 				}
-				TermAudio();
-			} catch (...) {
-				setNetworkState(false);
-				getSh4Executor()->Stop();
-				TermAudio();
-				throw;
-			}
 		});
 	}
 	else
@@ -1077,14 +1077,7 @@ bool Emulator::render()
 		return false;
 	if (state != Running)
 		return false;
-	// OpenEmu drives the render loop by calling executeFrame() once per display
-	// frame (~16ms). rend_single_frame() must return within that budget so OE's
-	// game loop thread doesn't stall. We use a short timeout: if no Flycast frame
-	// is ready within the window, return false and let OE call again next tick.
-	// The SH4 interpreter runs at ~10-20% of real speed on ARM64, so during
-	// heavy phases (GD-ROM loading) many OE ticks will return false before a
-	// frame arrives — that is correct and expected behaviour.
-	return rend_single_frame(true, 14);
+	return rend_single_frame(true); // FIXME stop flag?
 }
 
 void Emulator::vblank()
