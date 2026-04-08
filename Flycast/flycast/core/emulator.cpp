@@ -1077,18 +1077,14 @@ bool Emulator::render()
 		return false;
 	if (state != Running)
 		return false;
-	// The SH4 interpreter runs at ~10-20% of real speed on ARM64. GD-ROM loading
-	// can take arbitrarily long under the interpreter, so we wait indefinitely
-	// (-1) rather than using a fixed timeout. rend_cancel_emu_wait() unblocks
-	// the render thread on quit via cancelEnqueue(), preventing a deadlock.
-	// With JIT/dynarec the emulator runs at full speed so the default per-field
-	// timeout (-1 passed to rend_single_frame uses its own default) is fine.
-#if FEAT_SHREC != DYNAREC_NONE
-	const int frameTimeout = config::DynarecEnabled ? 0 : -1;
-#else
-	const int frameTimeout = -1;
-#endif
-	return rend_single_frame(true, frameTimeout);
+	// OpenEmu drives the render loop by calling executeFrame() once per display
+	// frame (~16ms). rend_single_frame() must return within that budget so OE's
+	// game loop thread doesn't stall. We use a short timeout: if no Flycast frame
+	// is ready within the window, return false and let OE call again next tick.
+	// The SH4 interpreter runs at ~10-20% of real speed on ARM64, so during
+	// heavy phases (GD-ROM loading) many OE ticks will return false before a
+	// frame arrives — that is correct and expected behaviour.
+	return rend_single_frame(true, 14);
 }
 
 void Emulator::vblank()
