@@ -190,6 +190,7 @@ __weak FlycastGameCore *_current;
             // loadGame resets all settings — re-apply overrides after it returns.
             config::ThreadedRendering.override(false);
             config::UseReios.override(true); // HLE BIOS: avoids slow GD-ROM loading under interpreter
+            config::AudioBackend.set("openemu"); // loadGame resets this to "auto"; restore before InitAudio()
             rend_init_renderer();
             emu.start();
             gui_setState(GuiState::Closed);
