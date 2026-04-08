@@ -84,7 +84,8 @@ static OpenEmuAudioBackend openEmuAudioBackend;
     NSString *_romPath;
     int _videoWidth;
     int _videoHeight;
-    BOOL _isInitialized;
+    BOOL _isInitialized;   // emu.start() succeeded — render loop is live
+    BOOL _emuInitialized;  // emu.init() succeeded — safe to call emu.term()
     double _frameInterval;
 }
 @end
@@ -144,6 +145,7 @@ __weak FlycastGameCore *_current;
     os_InstallFaultHandler();
 
     emu.init();
+    _emuInitialized = YES;
 }
 
 - (void)startEmulation
@@ -153,8 +155,8 @@ __weak FlycastGameCore *_current;
 
 - (void)stopEmulationWithCompletionHandler:(void(^)(void))completionHandler
 {
-    if (_isInitialized)
-        emu.stop();
+    // Do not call emu.stop() here — stopEmulation handles full teardown.
+    // Calling stop() twice races with the SH4 thread and causes hangs.
     [super stopEmulationWithCompletionHandler:completionHandler];
 }
 
@@ -168,7 +170,12 @@ __weak FlycastGameCore *_current;
         _isInitialized = NO;
     }
     os_UninstallFaultHandler();
-    emu.term();
+    // Only call emu.term() if emu.init() was called — term() calls
+    // addrspace::release() which crashes if the address space was never set up.
+    if (_emuInitialized) {
+        emu.term();
+        _emuInitialized = NO;
+    }
     [super stopEmulation];
 }
 
