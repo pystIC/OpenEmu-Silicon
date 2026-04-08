@@ -159,7 +159,9 @@ __weak FlycastGameCore *_current;
     flylog("[Flycast] emu.init() start");
     config::RendererType = RenderType::OpenGL;
     config::AudioBackend.set("openemu");
-    config::DynarecEnabled = true;
+    // ARM64 JIT causes non-deterministic hangs on first launch (emu.render() never returns).
+    // Interpreter mode is reliable. Re-enable JIT once the render/stop race is fixed.
+    config::DynarecEnabled = false;
 
     if (!addrspace::reserve()) {
         NSLog(@"[Flycast] Failed to reserve Dreamcast address space");
