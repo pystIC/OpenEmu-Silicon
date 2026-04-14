@@ -1256,6 +1256,34 @@ static void* bridge_dlsym(void *handle, const char *symbol) {
 - (void)didPushOEButton:(NSInteger)button forPlayer:(NSUInteger)player {}
 - (void)didReleaseOEButton:(NSInteger)button forPlayer:(NSUInteger)player {}
 
+#pragma mark - OEGBSystemResponderClient
+
+// OEGBButton enum values (must match OEGBSystemResponderClient.h):
+// Up=0, Down=1, Left=2, Right=3, A=4, B=5, Start=6, Select=7
+static const uint8_t OEGBButtonToLibretro[] = {
+    RETRO_DEVICE_ID_JOYPAD_UP,     // OEGBButtonUp    = 0
+    RETRO_DEVICE_ID_JOYPAD_DOWN,   // OEGBButtonDown  = 1
+    RETRO_DEVICE_ID_JOYPAD_LEFT,   // OEGBButtonLeft  = 2
+    RETRO_DEVICE_ID_JOYPAD_RIGHT,  // OEGBButtonRight = 3
+    RETRO_DEVICE_ID_JOYPAD_A,      // OEGBButtonA     = 4
+    RETRO_DEVICE_ID_JOYPAD_B,      // OEGBButtonB     = 5
+    RETRO_DEVICE_ID_JOYPAD_START,  // OEGBButtonStart = 6
+    RETRO_DEVICE_ID_JOYPAD_SELECT, // OEGBButtonSelect= 7
+};
+static const NSUInteger OEGBButtonCount = sizeof(OEGBButtonToLibretro) / sizeof(OEGBButtonToLibretro[0]);
+
+- (oneway void)didPushGBButton:(NSInteger)button {
+    if ((NSUInteger)button < OEGBButtonCount) {
+        [self receiveLibretroButton:OEGBButtonToLibretro[button] forPort:0 pressed:YES];
+    }
+}
+
+- (oneway void)didReleaseGBButton:(NSInteger)button {
+    if ((NSUInteger)button < OEGBButtonCount) {
+        [self receiveLibretroButton:OEGBButtonToLibretro[button] forPort:0 pressed:NO];
+    }
+}
+
 #pragma mark - Speed Control
 
 - (float)rate {
