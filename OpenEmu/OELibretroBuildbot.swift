@@ -363,4 +363,40 @@ enum OELibretroBuildbot {
         let core = allCores.first { $0.dylibFilename.caseInsensitiveCompare(filename) == .orderedSame }
         return core?.systemIdentifiers ?? []
     }
+
+    #if false
+    // MARK: - CoreUpdater injection (Disabled for data-only branch)
+
+    /// Injects a `CoreDownload` entry for every libretro core that is not already present
+    /// in `dict` (i.e. not yet installed or already known).  Call this from
+    /// `CoreUpdater.checkForNewCores()` after the standard OpenEmu core list is fetched.
+    ///
+    /// - Parameters:
+    ///   - dict:     The `CoreUpdater.coresDict` to mutate (keyed by lowercased bundle ID).
+    ///   - delegate: The `CoreDownloadDelegate` (= the `CoreUpdater` singleton).
+    static func injectCoreDownloads(
+        into dict: inout [String: CoreDownload],
+        delegate: CoreDownloadDelegate
+    ) {
+        for core in allCores {
+            let key = core.bundleIdentifier.lowercased()
+            // Skip if already installed (plugin-backed CoreDownload exists).
+            guard dict[key] == nil else { continue }
+
+            let download          = CoreDownload()
+            download.name             = core.displayName
+            download.bundleIdentifier = core.bundleIdentifier
+            download.systemIdentifiers = core.systemIdentifiers
+            download.canBeInstalled   = true
+            download.appcastItem      = CoreAppcastItem(
+                url:          core.downloadURL,
+                version:      "Nightly",
+                minOSVersion: "11.0"
+            )
+            download.delegate = delegate
+
+            dict[key] = download
+        }
+    }
+    #endif
 }
