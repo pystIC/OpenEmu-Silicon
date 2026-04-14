@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>gambatte_libretro.dylib</string>
+	<string>Gambatte-Bridge</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.openemu.Gambatte-Bridge</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -18,6 +18,8 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSPrincipalClass</key>
+	<string>OEGameCoreController</string>
 	<key>OEGameCoreClass</key>
 	<string>OELibretroCoreTranslator</string>
 	<key>OELibretroCorePath</key>

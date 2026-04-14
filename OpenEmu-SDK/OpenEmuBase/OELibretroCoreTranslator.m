@@ -920,10 +920,29 @@ static void* bridge_dlsym(void *handle, const char *symbol) {
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error {
     _current = self;
     self.coreBundle = [[self owner] bundle];
+    
+    // If owner didn't provide a bundle, find it by scanning all loaded bundles
+    // for one that declares OELibretroCoreTranslator as its game core class.
+    if (!self.coreBundle) {
+        for (NSBundle *b in [NSBundle allBundles]) {
+            if ([[b objectForInfoDictionaryKey:@"OEGameCoreClass"] isEqualToString:@"OELibretroCoreTranslator"]) {
+                self.coreBundle = b;
+                break;
+            }
+        }
+    }
+    
     NSString *corePath = [[self coreBundle] objectForInfoDictionaryKey:@"OELibretroCorePath"];
     
     if (!corePath) {
         corePath = [self.coreBundle executablePath];
+    }
+    
+    // If the path is relative, resolve it against the bundle's MacOS/ directory
+    // (where the dylib sits alongside the stub executable).
+    if (corePath && ![corePath isAbsolutePath]) {
+        NSString *bundleMacOSDir = [[self.coreBundle executablePath] stringByDeletingLastPathComponent];
+        corePath = [bundleMacOSDir stringByAppendingPathComponent:corePath];
     }
     
     // Per-system isolation flags — identify system once, use flags everywhere.
@@ -947,12 +966,12 @@ static void* bridge_dlsym(void *handle, const char *symbol) {
     _cachedMaxWidth = 0; 
     _cachedMaxHeight = 0;
 
-    NSLog(@"[OELibretro] Attempting to load core from: %@", corePath);
-    fprintf(stderr, "[OELibretro] Loading core: %s\n", [corePath UTF8String]);
+    NSLog(@"[OELibretro] Bundle path: %@", self.coreBundle.bundlePath);
+    NSLog(@"[OELibretro] corePath resolved: %@", corePath);
+    NSLog(@"[OELibretro] ROM path: %@", path);
     
     if (![[NSFileManager defaultManager] fileExistsAtPath:corePath]) {
-        NSLog(@"[OELibretro] Core file NOT found at path!");
-        fprintf(stderr, "[OELibretro] ERROR: Core file missing at %s\n", [corePath UTF8String]);
+        NSLog(@"[OELibretro] ERROR: Core dylib NOT found at path!");
         if (error) {
             *error = [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreCouldNotLoadROMError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Libretro core not found at %@", corePath]}];
         }
@@ -962,7 +981,7 @@ static void* bridge_dlsym(void *handle, const char *symbol) {
     _coreHandle = dlopen([corePath UTF8String], RTLD_LAZY | RTLD_LOCAL);
     if (!_coreHandle) {
         const char *err = dlerror();
-        NSLog(@"[OELibretro] dlopen failed: %s", err ?: "unknown error");
+        NSLog(@"[OELibretro] dlopen FAILED: %s", err ?: "unknown error");
         if (error) {
             *error = [NSError errorWithDomain:OEGameCoreErrorDomain code:OEGameCoreCouldNotLoadROMError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to load libretro core: %s", err ?: "unknown error"]}];
         }
