@@ -62,6 +62,7 @@ Recent highlights from active development:
 - **Sony PSP** — PPSSPP-Core fully rebuilt and integrated. PSP emulation now works natively on Apple Silicon.
 - **Nintendo 64** — Mupen64Plus revived and working. N64 emulation is back.
 - **Sega Dreamcast** — Migrated from Reicast to Flycast. Dreamcast emulation is significantly more stable.
+- **Gamecube** - Gamecube is playable via Dolphin and should be stable
 - **ScreenScraper cover art** — The library now automatically fetches box art from [ScreenScraper](https://www.screenscraper.fr), replacing the old manual cover art workflow entirely. Enter your credentials in Preferences → Cover Art and your library fills in automatically.
 - **Core updates** — SNES9x updated to 1.63, mGBA updated to 0.10.5.
 - **Pokémon Mini** — PokeMini and Potator (Watara Supervision) workspace integration fixed; both now build and run.
