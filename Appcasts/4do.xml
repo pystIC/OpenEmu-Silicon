@@ -11,7 +11,7 @@
         url="https://github.com/nickybmon/OpenEmu-Silicon/releases/download/cores-v1.1.0/4DO.oecoreplugin.zip"
         sparkle:version="2.3.0"
         sparkle:shortVersionString="2.3.0"
-        length="PLACEHOLDER"
+        length="68515"
         type="application/octet-stream" />
     </item>
   </channel>
