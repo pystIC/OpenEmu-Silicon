@@ -5,7 +5,34 @@
     <link>https://github.com/nickybmon/OpenEmu-Silicon/releases</link>
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
-                <item>
+                    <item>
+      <title>OpenEmu-Silicon 1.0.6</title>
+      <description>
+        <![CDATA[
+        <h2>OpenEmu-Silicon 1.0.6</h2>
+        <h3>What's New in 1.0.6</h3>
+        <ul>
+        <li>Flycast updated to version 2.4</li>
+        </ul>
+        <h3>Bug Fixes</h3>
+        <ul>
+        <li>Loading a save state created on an older core version now shows a warning instead of silently crashing</li>
+        <li>Dreamcast BIOS files (dc_flash.bin) are now correctly recognised in System Files — all regional variants are accepted and duplicate entries are collapsed into a single row</li>
+        <li>Core updates no longer stall or repeatedly offer the same version due to a URLSession cache issue</li>
+        </ul>
+        ]]>
+      </description>
+      <pubDate>Sat, 18 Apr 2026 16:02:14 +0000</pubDate>
+      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+      <enclosure
+        url="https://github.com/nickybmon/OpenEmu-Silicon/releases/download/v1.0.6/OpenEmu-Silicon.dmg"
+        sparkle:version="7"
+        sparkle:shortVersionString="1.0.6"
+        sparkle:edSignature="Lnv6RNrcxFYQDzf/M4BFpIWtL/IfTAr+phYUhKbvQebQWzCRbg/UjuEo7imRDpisIg4Lu37vLcAHhVg3unLxAQ=="
+        length="46198966"
+        type="application/octet-stream"/>
+    </item>
+<item>
       <title>OpenEmu-Silicon 1.0.5</title>
       <description>
         <![CDATA[
