@@ -728,7 +728,8 @@
 		FEB6627A187B812800D14713 /* Controller-Mappings.plist in Resources */ = {isa = PBXBuildFile; fileRef = FEB66277187B812800D14713 /* Controller-Mappings.plist */; };
 		FEB6627B187B812800D14713 /* Controller-Preferences.plist in Resources */ = {isa = PBXBuildFile; fileRef = FEB66278187B812800D14713 /* Controller-Preferences.plist */; };
 		FEB6627C187B812800D14713 /* Keyboard-Mappings.plist in Resources */ = {isa = PBXBuildFile; fileRef = FEB66279187B812800D14713 /* Keyboard-Mappings.plist */; };
-/* End PBXBuildFile section */
+		OE0RC0BUILDFILE0000000001 /* rcheevos_build.c in Sources */ = {isa = PBXBuildFile; fileRef = OE0RC0FILEREF00000000001 /* rcheevos_build.c */; settings = {COMPILER_FLAGS = "-DRC_NO_THREADS=1"; }; };
+		/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		011FD35F2526785D006D7C05 /* PBXContainerItemProxy */ = {
@@ -2089,7 +2090,8 @@
 		FEB66277187B812800D14713 /* Controller-Mappings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Controller-Mappings.plist"; sourceTree = "<group>"; };
 		FEB66278187B812800D14713 /* Controller-Preferences.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Controller-Preferences.plist"; sourceTree = "<group>"; };
 		FEB66279187B812800D14713 /* Keyboard-Mappings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Keyboard-Mappings.plist"; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+		OE0RC0FILEREF00000000001 /* rcheevos_build.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = rcheevos_build.c; path = ../Vendor/rcheevos/rcheevos_build.c; sourceTree = SOURCE_ROOT; };
+		/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		012148022537C6D6007F3C84 /* Frameworks */ = {
@@ -6340,6 +6342,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0572A40E2877F92300AC32F8 /* main.swift in Sources */,
+				OE0RC0BUILDFILE0000000001 /* rcheevos_build.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7688,7 +7691,11 @@
 					"$(inherited)",
 					"SUPPORTS_LIBRARY_REGISTRATION=0",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../OpenEmuKit/Source/OpenEmuKitPrivate/**";
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../OpenEmuKit/Source/OpenEmuKitPrivate/**",
+					"$(SRCROOT)/../Vendor/rcheevos/include",
+					"$(SRCROOT)/../Vendor/rcheevos/src",
+				);
 				INFOPLIST_FILE = "OpenEmuHelperApp/OpenEmuHelperApp-Info.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "";
@@ -7720,7 +7727,11 @@
 					"$(inherited)",
 					"SUPPORTS_LIBRARY_REGISTRATION=0",
 				);
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../OpenEmuKit/Source/OpenEmuKitPrivate/**";
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../OpenEmuKit/Source/OpenEmuKitPrivate/**",
+					"$(SRCROOT)/../Vendor/rcheevos/include",
+					"$(SRCROOT)/../Vendor/rcheevos/src",
+				);
 				INFOPLIST_FILE = "OpenEmuHelperApp/OpenEmuHelperApp-Info.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "";
@@ -8620,7 +8631,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.$(PRODUCT_NAME:identifier)";
 				PRODUCT_NAME = OpenEmu;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
@@ -8660,7 +8671,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.openemu.$(PRODUCT_NAME:identifier)";
 				PRODUCT_NAME = OpenEmu;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenEmu-Bridging-Header.h";

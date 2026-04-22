@@ -60,8 +60,13 @@ echo "sign_update: $SIGN_UPDATE"
 step "Preflight checks"
 
 # Check notarytool credentials
+# Credentials are stored in keychain under the profile name "OpenEmu" from a prior run of:
+#   xcrun notarytool store-credentials OpenEmu --apple-id <id> --team-id AJC82Q6789 --password <app-specific-password>
+# App-specific passwords are generated at appleid.apple.com → Security → App-Specific Passwords.
+# If you see a 403 error here, a Developer Program agreement likely needs re-acceptance at
+# appstoreconnect.apple.com (look for a banner at the top of the page).
 xcrun notarytool history --keychain-profile "OpenEmu" &>/dev/null \
-  || die "No notarytool credentials found. Run: xcrun notarytool store-credentials OpenEmu"
+  || die "No notarytool credentials found. Run: xcrun notarytool store-credentials OpenEmu --apple-id <id> --team-id AJC82Q6789 --password <app-specific-password>"
 echo "OK: notarytool credentials"
 
 # Check gh CLI
@@ -154,6 +159,18 @@ step "2/5  Re-signing, notarizing, and creating DMG"
 
 [ -f "$DMG" ] || die "DMG not found at $DMG after notarize.sh. Check notarize.sh output above."
 
+# ── 2.5. Update Homebrew cask ─────────────────────────────────────────────────
+step "2.5/5  Updating Homebrew cask (Casks/openemu-silicon.rb)"
+
+CASK_FILE="$REPO_ROOT/Casks/openemu-silicon.rb"
+DMG_SHA256=$(shasum -a 256 "$DMG" | awk '{print $1}')
+echo "DMG SHA256: $DMG_SHA256"
+
+# Update version and sha256 in the cask file
+sed -i '' "s/version \"[^\"]*\"/version \"$VERSION\"/" "$CASK_FILE"
+sed -i '' "s/sha256 \"[^\"]*\"/sha256 \"$DMG_SHA256\"/" "$CASK_FILE"
+echo "Updated $CASK_FILE → version $VERSION, sha256 $DMG_SHA256"
+
 # ── 3. Sign for Sparkle ───────────────────────────────────────────────────────
 step "3/5  Generating Sparkle EdDSA signature"
 
@@ -175,82 +192,15 @@ step "4/5  Updating appcast.xml"
 # NEXT_VERSION was already computed and validated in the preflight check above.
 PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
 
-# Build release notes HTML
-if [ -n "$NOTES_FILE" ] && [ -f "$NOTES_FILE" ]; then
-  # Convert simple markdown bullets to HTML (handles -, *, ** bold **)
-  NOTES_HTML=$(python3 - "$NOTES_FILE" <<'PYEOF'
-import sys, re
-
-with open(sys.argv[1]) as f:
-    lines = f.read().splitlines()
-
-out = []
-in_ul = False
-for line in lines:
-    if line.startswith('## '):
-        if in_ul: out.append('</ul>'); in_ul = False
-        out.append(f'<h3>{line[3:].strip()}</h3>')
-    elif re.match(r'^[-*] ', line):
-        if not in_ul: out.append('<ul>'); in_ul = True
-        item = line[2:].strip()
-        item = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', item)
-        out.append(f'<li>{item}</li>')
-    elif line.strip():
-        if in_ul: out.append('</ul>'); in_ul = False
-        out.append(f'<p>{line.strip()}</p>')
-
-if in_ul: out.append('</ul>')
-print('\n        '.join(out))
-PYEOF
-)
-else
-  NOTES_HTML="<p>TODO: add release notes before publishing.</p>"
+if [ -z "$NOTES_FILE" ] || [ ! -f "$NOTES_FILE" ]; then
   echo "NOTE: No release notes file provided. Appcast entry will contain a placeholder."
   echo "      Edit appcast.xml before publishing, or re-run with: $0 $VERSION path/to/notes.md"
 fi
 
-# Prepend new <item> to appcast.xml using Python (safer than sed for XML)
-python3 - "$APPCAST" "$VERSION" "$NEXT_VERSION" "$PUB_DATE" "$ED_SIG" "$DMG_LENGTH" "$NOTES_HTML" <<'PYEOF'
-import sys, re
-
-appcast_path, version, sparkle_version, pub_date, ed_sig, length, notes_html = sys.argv[1:]
-
-new_item = f"""    <item>
-      <title>OpenEmu-Silicon {version}</title>
-      <description>
-        <![CDATA[
-        <h2>OpenEmu-Silicon {version}</h2>
-        {notes_html}
-        ]]>
-      </description>
-      <pubDate>{pub_date}</pubDate>
-      <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
-      <enclosure
-        url="https://github.com/nickybmon/OpenEmu-Silicon/releases/download/v{version}/OpenEmu-Silicon.dmg"
-        sparkle:version="{sparkle_version}"
-        sparkle:shortVersionString="{version}"
-        sparkle:edSignature="{ed_sig}"
-        length="{length}"
-        type="application/octet-stream"/>
-    </item>"""
-
-with open(appcast_path, 'r') as f:
-    content = f.read()
-
-# Insert after the first <channel> block opener (after <language> tag)
-insert_after = re.search(r'(<language>[^<]*</language>\s*)', content)
-if not insert_after:
-    print("ERROR: could not find insertion point in appcast.xml", file=sys.stderr)
-    sys.exit(1)
-
-pos = insert_after.end()
-content = content[:pos] + new_item + '\n' + content[pos:]
-
-with open(appcast_path, 'w') as f:
-    f.write(content)
-
-print(f"Prepended v{version} entry (sparkle:version={sparkle_version}) to appcast.xml")
-PYEOF
+# Prepend new <item> to appcast.xml
+python3 "$SCRIPT_DIR/update_appcast.py" \
+  "$APPCAST" "$VERSION" "$NEXT_VERSION" "$PUB_DATE" "$ED_SIG" "$DMG_LENGTH" \
+  ${NOTES_FILE:+"$NOTES_FILE"}
 
 # ── 5. GitHub Release (draft) + push appcast ──────────────────────────────────
 step "5/5  Creating GitHub draft release and pushing appcast"
@@ -293,9 +243,9 @@ fi
 
 echo "DMG uploaded to draft release $TAG."
 
-# Commit and push appcast
-git -C "$REPO_ROOT" add "$APPCAST"
-git -C "$REPO_ROOT" commit -m "chore: add v$VERSION appcast entry"
+# Commit and push appcast + cask
+git -C "$REPO_ROOT" add "$APPCAST" "$CASK_FILE"
+git -C "$REPO_ROOT" commit -m "chore: release v$VERSION — update appcast and Homebrew cask"
 git -C "$REPO_ROOT" push origin main
 
 echo ""

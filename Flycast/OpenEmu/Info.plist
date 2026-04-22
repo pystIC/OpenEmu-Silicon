@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>2.3</string>
+	<string>2.4</string>
 	<key>NSPrincipalClass</key>
 	<string>OEGameCoreController</string>
 	<key>OEGameCoreClass</key>
@@ -49,6 +49,26 @@
 					<string>Dreamcast Flash ROM</string>
 					<key>MD5</key>
 					<string>0a93f7940c455905bea6e392dfde92a4</string>
+					<key>Name</key>
+					<string>dc_flash.bin</string>
+					<key>Size</key>
+					<integer>131072</integer>
+				</dict>
+				<dict>
+					<key>Description</key>
+					<string>Dreamcast Flash ROM (All regions)</string>
+					<key>MD5</key>
+					<string>93a9766f14159b403178ac77417c6b68</string>
+					<key>Name</key>
+					<string>dc_flash.bin</string>
+					<key>Size</key>
+					<integer>131072</integer>
+				</dict>
+				<dict>
+					<key>Description</key>
+					<string>Dreamcast Flash ROM (Alt)</string>
+					<key>MD5</key>
+					<string>9338b10ee6f13fbc8bfcd6276e156fad</string>
 					<key>Name</key>
 					<string>dc_flash.bin</string>
 					<key>Size</key>
