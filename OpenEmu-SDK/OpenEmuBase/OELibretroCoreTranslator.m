@@ -919,6 +919,13 @@ static void* bridge_dlsym(void *handle, const char *symbol) {
 
 - (BOOL)loadFileAtPath:(NSString *)path error:(NSError **)error {
     _current = self;
+
+    // ABI Sanity Check: Ensure our compiled layout matches the Libretro spec requirements
+    // for Apple Silicon (64-byte hw_render_callback, 16-byte aligned pointers).
+    if (sizeof(struct retro_hw_render_callback) != 64) {
+        os_log_error(OE_LOG_DEFAULT, "[OELibretro] FATAL: ABI Mismatch detected! hw_render_callback size: %zu (Expected 64)", sizeof(struct retro_hw_render_callback));
+    }
+
     self.coreBundle = [[self owner] bundle];
     
     // If owner didn't provide a bundle, find it by scanning all loaded bundles
