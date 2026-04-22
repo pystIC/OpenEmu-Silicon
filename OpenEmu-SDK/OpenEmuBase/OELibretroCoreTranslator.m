@@ -1392,9 +1392,472 @@ static const NSUInteger OEGBButtonCount = sizeof(OEGBButtonToLibretro) / sizeof(
     return YES;
 }
 
-#pragma mark - NDS Specific Responder
-- (oneway void)didPushNDSButton:(NSInteger)button forPlayer:(NSUInteger)player {}
-- (oneway void)didReleaseNDSButton:(NSInteger)button forPlayer:(NSUInteger)player {}
+#pragma mark - Input: OELibretroInputReceiver
+// These methods are the canonical input entry point for the bridge.
+// System responders (OEGBASystemResponder, etc.) call these directly via
+// the OEBridgeInputTranslation protocol. The per-system didPushXXXButton:
+// methods below are fallback stubs that also route here — they fire only
+// when a native (non-bridge) core somehow ends up loading through the
+// translator, which should not happen in practice. If you update the
+// button mapping in a system responder's kXXXLibretroMap[], verify the
+// corresponding translator-side table (if any) stays consistent.
+
+- (void)receiveLibretroButton:(uint8_t)buttonID forPort:(NSUInteger)port pressed:(BOOL)pressed {
+    if (port < 4 && buttonID < 16) {
+        atomic_store_explicit(&_buttonStates[port][buttonID], pressed ? 1 : 0, memory_order_release);
+    }
+}
+
+- (void)receiveLibretroAnalogIndex:(uint8_t)index axis:(uint8_t)axis value:(int16_t)value forPort:(NSUInteger)port {
+    if (port < 4 && index < 2 && axis < 2) {
+        atomic_store_explicit(&_analogStates[port][index][axis], value, memory_order_relaxed);
+    }
+}
+
+#pragma mark - Input Stubs
+
+- (void)didPushOEButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    uint8_t retroID = [self _retroButtonForOEButton:button];
+    if (retroID != 0xFF) {
+        [self receiveLibretroButton:retroID forPort:(player > 0 ? player - 1 : 0) pressed:YES];
+    }
+}
+
+- (void)didReleaseOEButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    uint8_t retroID = [self _retroButtonForOEButton:button];
+    if (retroID != 0xFF) {
+        [self receiveLibretroButton:retroID forPort:(player > 0 ? player - 1 : 0) pressed:NO];
+    }
+}
+
+- (uint8_t)_retroButtonForOEButton:(NSInteger)button {
+    // Standard OpenEmu button order tends to match SNES-ish layout for simple digital pads.
+    // However, the cleanest way to support multiple cores is to map based on the current system.
+    
+    if (self.isPSP) {
+        // OEPSPButton mapping
+        switch (button) {
+            case 0:  return RETRO_DEVICE_ID_JOYPAD_UP;     // OEPSPButtonUp
+            case 1:  return RETRO_DEVICE_ID_JOYPAD_DOWN;   // OEPSPButtonDown
+            case 2:  return RETRO_DEVICE_ID_JOYPAD_LEFT;   // OEPSPButtonLeft
+            case 3:  return RETRO_DEVICE_ID_JOYPAD_RIGHT;  // OEPSPButtonRight
+            case 4:  return RETRO_DEVICE_ID_JOYPAD_X;      // OEPSPButtonTriangle
+            case 5:  return RETRO_DEVICE_ID_JOYPAD_A;      // OEPSPButtonCircle
+            case 6:  return RETRO_DEVICE_ID_JOYPAD_B;      // OEPSPButtonCross
+            case 7:  return RETRO_DEVICE_ID_JOYPAD_Y;      // OEPSPButtonSquare
+            case 8:  return RETRO_DEVICE_ID_JOYPAD_L;      // OEPSPButtonL1
+            case 11: return RETRO_DEVICE_ID_JOYPAD_R;      // OEPSPButtonR1
+            case 14: return RETRO_DEVICE_ID_JOYPAD_START;  // OEPSPButtonStart
+            case 15: return RETRO_DEVICE_ID_JOYPAD_SELECT; // OEPSPButtonSelect
+            default: return 0xFF;
+        }
+    }
+    
+    if (self.isSaturn) {
+        // OESaturnButton mapping
+        switch (button) {
+            case 0: return RETRO_DEVICE_ID_JOYPAD_UP;     // OESaturnButtonUp
+            case 1: return RETRO_DEVICE_ID_JOYPAD_DOWN;   // OESaturnButtonDown
+            case 2: return RETRO_DEVICE_ID_JOYPAD_LEFT;   // OESaturnButtonLeft
+            case 3: return RETRO_DEVICE_ID_JOYPAD_RIGHT;  // OESaturnButtonRight
+            case 4: return RETRO_DEVICE_ID_JOYPAD_Y;      // OESaturnButtonA -> Y (libretro Saturn layout)
+            case 5: return RETRO_DEVICE_ID_JOYPAD_B;      // OESaturnButtonB -> B
+            case 6: return RETRO_DEVICE_ID_JOYPAD_A;      // OESaturnButtonC -> A
+            case 7: return RETRO_DEVICE_ID_JOYPAD_L;      // OESaturnButtonX -> L
+            case 8: return RETRO_DEVICE_ID_JOYPAD_X;      // OESaturnButtonY -> X
+            case 9: return RETRO_DEVICE_ID_JOYPAD_R;      // OESaturnButtonZ -> R
+            case 10: return RETRO_DEVICE_ID_JOYPAD_L2;    // OESaturnButtonL -> L2
+            case 11: return RETRO_DEVICE_ID_JOYPAD_R2;    // OESaturnButtonR -> R2
+            case 12: return RETRO_DEVICE_ID_JOYPAD_START; // OESaturnButtonStart
+            default: return 0xFF;
+        }
+    }
+
+    // Default Fallback (SNES/Generic)
+    switch (button) {
+        case 0: return RETRO_DEVICE_ID_JOYPAD_UP;
+        case 1: return RETRO_DEVICE_ID_JOYPAD_DOWN;
+        case 2: return RETRO_DEVICE_ID_JOYPAD_LEFT;
+        case 3: return RETRO_DEVICE_ID_JOYPAD_RIGHT;
+        case 4: return RETRO_DEVICE_ID_JOYPAD_A;
+        case 5: return RETRO_DEVICE_ID_JOYPAD_B;
+        case 6: return RETRO_DEVICE_ID_JOYPAD_X;
+        case 7: return RETRO_DEVICE_ID_JOYPAD_Y;
+        case 8: return RETRO_DEVICE_ID_JOYPAD_L;
+        case 9: return RETRO_DEVICE_ID_JOYPAD_R;
+        case 10: return RETRO_DEVICE_ID_JOYPAD_START;
+        case 11: return RETRO_DEVICE_ID_JOYPAD_SELECT;
+        default: return 0xFF;
+    }
+}
+
+#pragma mark - Speed Control
+
+- (float)rate {
+    return _current == self ? [super rate] : 1.0f;
+}
+
+- (OEGameCoreRendering)gameCoreRendering {
+    if (self.isHW) {
+        return OEGameCoreRenderingOpenGL3;
+    }
+    return OEGameCoreRenderingBitmap;
+}
+
+- (void)fastForwardAtSpeed:(CGFloat)speed {
+    self.rate = (float)speed;
+}
+
+- (void)rewindAtSpeed:(CGFloat)speed {
+    // Rewind is not implemented in the bridge; pause to avoid undefined negative rate.
+    self.rate = 0;
+}
+
+- (void)slowMotionAtSpeed:(CGFloat)speed {
+    self.rate = (float)speed;
+}
+
+#pragma mark - System Specific Responders
+// Most systems use generic didPushOEButton: routing through _retroButtonForOEButton:.
+// Systems with analog input or non-standard button orderings get dedicated lookup tables.
+
+- (oneway void)didPushNESButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseNESButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushSNESButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseSNESButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushSaturnButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseSaturnButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushPSPButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleasePSPButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPush7800Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didRelease7800Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushSMSButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseSMSButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushGGButton:(NSInteger)button {
+    [self didPushOEButton:button forPlayer:1];
+}
+- (oneway void)didReleaseGGButton:(NSInteger)button {
+    [self didReleaseOEButton:button forPlayer:1];
+}
+
+- (oneway void)didPushPSXButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleasePSXButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushColecoVisionButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseColecoVisionButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPush5200Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didRelease5200Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushA8Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseA8Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushSega32XButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseSega32XButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+- (oneway void)didPushSegaCDButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseSegaCDButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
+
+#pragma mark - OEGenesisSystemResponderClient (lookup table)
+
+// OEGenesisButton enum: Up=0, Down=1, Left=2, Right=3, A=4, B=5, C=6, X=7, Y=8, Z=9, Start=10, Mode=11
+static const uint8_t OEGenesisButtonToLibretro[] = {
+    RETRO_DEVICE_ID_JOYPAD_UP,     // 0 Up
+    RETRO_DEVICE_ID_JOYPAD_DOWN,   // 1 Down
+    RETRO_DEVICE_ID_JOYPAD_LEFT,   // 2 Left
+    RETRO_DEVICE_ID_JOYPAD_RIGHT,  // 3 Right
+    RETRO_DEVICE_ID_JOYPAD_Y,      // 4 A → Y (genesis_plus_gx mapping)
+    RETRO_DEVICE_ID_JOYPAD_B,      // 5 B → B
+    RETRO_DEVICE_ID_JOYPAD_A,      // 6 C → A
+    RETRO_DEVICE_ID_JOYPAD_L,      // 7 X → L
+    RETRO_DEVICE_ID_JOYPAD_X,      // 8 Y → X
+    RETRO_DEVICE_ID_JOYPAD_R,      // 9 Z → R
+    RETRO_DEVICE_ID_JOYPAD_START,  // 10 Start
+    RETRO_DEVICE_ID_JOYPAD_SELECT, // 11 Mode → Select
+};
+static const NSUInteger OEGenesisButtonCount = sizeof(OEGenesisButtonToLibretro) / sizeof(OEGenesisButtonToLibretro[0]);
+
+- (oneway void)didPushGenesisButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button < OEGenesisButtonCount) {
+        [self receiveLibretroButton:OEGenesisButtonToLibretro[button] forPort:(player > 0 ? player - 1 : 0) pressed:YES];
+    }
+}
+- (oneway void)didReleaseGenesisButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button < OEGenesisButtonCount) {
+        [self receiveLibretroButton:OEGenesisButtonToLibretro[button] forPort:(player > 0 ? player - 1 : 0) pressed:NO];
+    }
+}
+
+#pragma mark - OEN64SystemResponderClient (lookup table + analog)
+
+// OEN64Button enum: DPadUp=0..DPadRight=3, CUp=4..CRight=7, A=8, B=9, L=10, R=11, Z=12, Start=13, AnalogUp=14..AnalogRight=17
+// Analog entries use 0xFF sentinel — handled separately in didMoveN64JoystickDirection:.
+static const uint8_t OEN64ButtonToLibretro[] = {
+    RETRO_DEVICE_ID_JOYPAD_UP,     // 0 DPadUp
+    RETRO_DEVICE_ID_JOYPAD_DOWN,   // 1 DPadDown
+    RETRO_DEVICE_ID_JOYPAD_LEFT,   // 2 DPadLeft
+    RETRO_DEVICE_ID_JOYPAD_RIGHT,  // 3 DPadRight
+    0xFF,                          // 4 CUp    (mapped as right-stick up)
+    0xFF,                          // 5 CDown  (mapped as right-stick down)
+    0xFF,                          // 6 CLeft  (mapped as right-stick left)
+    0xFF,                          // 7 CRight (mapped as right-stick right)
+    RETRO_DEVICE_ID_JOYPAD_A,      // 8 A
+    RETRO_DEVICE_ID_JOYPAD_B,      // 9 B
+    RETRO_DEVICE_ID_JOYPAD_L,      // 10 L
+    RETRO_DEVICE_ID_JOYPAD_R,      // 11 R
+    RETRO_DEVICE_ID_JOYPAD_L2,     // 12 Z → L2 (mupen64plus-next mapping)
+    RETRO_DEVICE_ID_JOYPAD_START,  // 13 Start
+    0xFF,                          // 14 AnalogUp
+    0xFF,                          // 15 AnalogDown
+    0xFF,                          // 16 AnalogLeft
+    0xFF,                          // 17 AnalogRight
+};
+static const NSUInteger OEN64ButtonCount = sizeof(OEN64ButtonToLibretro) / sizeof(OEN64ButtonToLibretro[0]);
+
+- (oneway void)didPushN64Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button < OEN64ButtonCount && OEN64ButtonToLibretro[button] != 0xFF) {
+        [self receiveLibretroButton:OEN64ButtonToLibretro[button] forPort:(player > 0 ? player - 1 : 0) pressed:YES];
+    }
+    // C-buttons as right analog stick digital presses
+    NSUInteger port = player > 0 ? player - 1 : 0;
+    switch (button) {
+        case 4: [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_RIGHT axis:RETRO_DEVICE_ID_ANALOG_Y value:-0x7FFF forPort:port]; break; // CUp
+        case 5: [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_RIGHT axis:RETRO_DEVICE_ID_ANALOG_Y value: 0x7FFF forPort:port]; break; // CDown
+        case 6: [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_RIGHT axis:RETRO_DEVICE_ID_ANALOG_X value:-0x7FFF forPort:port]; break; // CLeft
+        case 7: [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_RIGHT axis:RETRO_DEVICE_ID_ANALOG_X value: 0x7FFF forPort:port]; break; // CRight
+        default: break;
+    }
+}
+- (oneway void)didReleaseN64Button:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button < OEN64ButtonCount && OEN64ButtonToLibretro[button] != 0xFF) {
+        [self receiveLibretroButton:OEN64ButtonToLibretro[button] forPort:(player > 0 ? player - 1 : 0) pressed:NO];
+    }
+    NSUInteger port = player > 0 ? player - 1 : 0;
+    switch (button) {
+        case 4: case 5: [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_RIGHT axis:RETRO_DEVICE_ID_ANALOG_Y value:0 forPort:port]; break;
+        case 6: case 7: [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_RIGHT axis:RETRO_DEVICE_ID_ANALOG_X value:0 forPort:port]; break;
+        default: break;
+    }
+}
+
+- (oneway void)didMoveN64JoystickDirection:(NSInteger)button withValue:(CGFloat)value forPlayer:(NSUInteger)player {
+    NSUInteger port = player > 0 ? player - 1 : 0;
+    int16_t scaledValue = (int16_t)(value * 0x7FFF);
+    switch (button) {
+        case 14: // AnalogUp
+            [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_LEFT axis:RETRO_DEVICE_ID_ANALOG_Y value:-scaledValue forPort:port];
+            break;
+        case 15: // AnalogDown
+            [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_LEFT axis:RETRO_DEVICE_ID_ANALOG_Y value:scaledValue forPort:port];
+            break;
+        case 16: // AnalogLeft
+            [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_LEFT axis:RETRO_DEVICE_ID_ANALOG_X value:-scaledValue forPort:port];
+            break;
+        case 17: // AnalogRight
+            [self receiveLibretroAnalogIndex:RETRO_DEVICE_INDEX_ANALOG_LEFT axis:RETRO_DEVICE_ID_ANALOG_X value:scaledValue forPort:port];
+            break;
+        default:
+            break;
+    }
+}
+
+#pragma mark - OEGBASystemResponderClient (lookup table)
+
+// OEGBAButton enum: Up=0, Down=1, Left=2, Right=3, A=4, B=5, L=6, R=7, Start=8, Select=9
+static const uint8_t OEGBAButtonToLibretro[] = {
+    RETRO_DEVICE_ID_JOYPAD_UP,     // 0 Up
+    RETRO_DEVICE_ID_JOYPAD_DOWN,   // 1 Down
+    RETRO_DEVICE_ID_JOYPAD_LEFT,   // 2 Left
+    RETRO_DEVICE_ID_JOYPAD_RIGHT,  // 3 Right
+    RETRO_DEVICE_ID_JOYPAD_A,      // 4 A
+    RETRO_DEVICE_ID_JOYPAD_B,      // 5 B
+    RETRO_DEVICE_ID_JOYPAD_L,      // 6 L
+    RETRO_DEVICE_ID_JOYPAD_R,      // 7 R
+    RETRO_DEVICE_ID_JOYPAD_START,  // 8 Start
+    RETRO_DEVICE_ID_JOYPAD_SELECT, // 9 Select
+};
+static const NSUInteger OEGBAButtonCount = sizeof(OEGBAButtonToLibretro) / sizeof(OEGBAButtonToLibretro[0]);
+
+- (oneway void)didPushGBAButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button < OEGBAButtonCount) {
+        [self receiveLibretroButton:OEGBAButtonToLibretro[button] forPort:(player > 0 ? player - 1 : 0) pressed:YES];
+    }
+}
+- (oneway void)didReleaseGBAButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button < OEGBAButtonCount) {
+        [self receiveLibretroButton:OEGBAButtonToLibretro[button] forPort:(player > 0 ? player - 1 : 0) pressed:NO];
+    }
+}
+
+#pragma mark - OEGBSystemResponderClient (lookup table)
+
+// OEGBButton enum: Up=0, Down=1, Left=2, Right=3, A=4, B=5, Start=6, Select=7
+static const uint8_t OEGBButtonToLibretro[] = {
+    RETRO_DEVICE_ID_JOYPAD_UP,     // 0
+    RETRO_DEVICE_ID_JOYPAD_DOWN,   // 1
+    RETRO_DEVICE_ID_JOYPAD_LEFT,   // 2
+    RETRO_DEVICE_ID_JOYPAD_RIGHT,  // 3
+    RETRO_DEVICE_ID_JOYPAD_A,      // 4
+    RETRO_DEVICE_ID_JOYPAD_B,      // 5
+    RETRO_DEVICE_ID_JOYPAD_START,  // 6
+    RETRO_DEVICE_ID_JOYPAD_SELECT, // 7
+};
+static const NSUInteger OEGBButtonCount = sizeof(OEGBButtonToLibretro) / sizeof(OEGBButtonToLibretro[0]);
+
+- (oneway void)didPushGBButton:(NSInteger)button {
+    if ((NSUInteger)button < OEGBButtonCount) {
+        [self receiveLibretroButton:OEGBButtonToLibretro[button] forPort:0 pressed:YES];
+    }
+}
+- (oneway void)didReleaseGBButton:(NSInteger)button {
+    if ((NSUInteger)button < OEGBButtonCount) {
+        [self receiveLibretroButton:OEGBButtonToLibretro[button] forPort:0 pressed:NO];
+    }
+}
+
+#pragma mark - OEDCSystemResponderClient (lookup table + analog)
+
+// OEDCButton enum: Up=0, Down=1, Left=2, Right=3, A=4, B=5, X=6, Y=7,
+// AnalogL=8, AnalogR=9, Start=10, AnalogUp=11, AnalogDown=12, AnalogLeft=13, AnalogRight=14
+// Analog entries use 0xFF sentinel — handled separately in didMoveDCJoystickDirection:.
+static const uint8_t OEDCButtonToLibretro[] = {
+    RETRO_DEVICE_ID_JOYPAD_UP,     // 0
+    RETRO_DEVICE_ID_JOYPAD_DOWN,   // 1
+    RETRO_DEVICE_ID_JOYPAD_LEFT,   // 2
+    RETRO_DEVICE_ID_JOYPAD_RIGHT,  // 3
+    RETRO_DEVICE_ID_JOYPAD_A,      // 4
+    RETRO_DEVICE_ID_JOYPAD_B,      // 5
+    RETRO_DEVICE_ID_JOYPAD_X,      // 6
+    RETRO_DEVICE_ID_JOYPAD_Y,      // 7
+    0xFF,                          // 8  AnalogL (analog)
+    0xFF,                          // 9  AnalogR (analog)
+    RETRO_DEVICE_ID_JOYPAD_START,  // 10
+    0xFF,                          // 11 AnalogUp (analog)
+    0xFF,                          // 12 AnalogDown (analog)
+    0xFF,                          // 13 AnalogLeft (analog)
+    0xFF,                          // 14 AnalogRight (analog)
+};
+static const NSUInteger OEDCButtonCount = sizeof(OEDCButtonToLibretro) / sizeof(OEDCButtonToLibretro[0]);
+
+- (oneway void)didPushDCButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button >= OEDCButtonCount) return;
+    uint8_t libretroID = OEDCButtonToLibretro[button];
+    if (libretroID != 0xFF) {
+        NSUInteger port = player > 0 ? player - 1 : 0;
+        [self receiveLibretroButton:libretroID forPort:port pressed:YES];
+    }
+}
+
+- (oneway void)didReleaseDCButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    if ((NSUInteger)button >= OEDCButtonCount) return;
+    uint8_t libretroID = OEDCButtonToLibretro[button];
+    if (libretroID != 0xFF) {
+        NSUInteger port = player > 0 ? player - 1 : 0;
+        [self receiveLibretroButton:libretroID forPort:port pressed:NO];
+    }
+}
+
+- (oneway void)didMoveDCJoystickDirection:(NSInteger)button withValue:(CGFloat)value forPlayer:(NSUInteger)player {
+    NSUInteger port = player > 0 ? player - 1 : 0;
+    if (port >= 4) return;
+
+    // Scale CGFloat value to libretro int16_t range.
+    // Sticks: OE sends [-1.0, 1.0] -> libretro [-32768, 32767]
+    // Triggers: OE sends [0.0, 1.0] -> libretro [0, 32767]
+    int16_t scaled = (int16_t)(value * 32767.0);
+
+    switch (button) {
+        case 13: // OEDCAnalogLeft  -> X axis
+            atomic_store_explicit(&_analogStates[port][RETRO_DEVICE_INDEX_ANALOG_LEFT][RETRO_DEVICE_ID_ANALOG_X], scaled, memory_order_release);
+            break;
+        case 14: // OEDCAnalogRight -> X axis (right stick)
+            atomic_store_explicit(&_analogStates[port][RETRO_DEVICE_INDEX_ANALOG_RIGHT][RETRO_DEVICE_ID_ANALOG_X], scaled, memory_order_release);
+            break;
+        case 11: // OEDCAnalogUp    -> Y axis
+            atomic_store_explicit(&_analogStates[port][RETRO_DEVICE_INDEX_ANALOG_LEFT][RETRO_DEVICE_ID_ANALOG_Y], scaled, memory_order_release);
+            break;
+        case 12: // OEDCAnalogDown  -> Y axis
+            atomic_store_explicit(&_analogStates[port][RETRO_DEVICE_INDEX_ANALOG_LEFT][RETRO_DEVICE_ID_ANALOG_Y], scaled, memory_order_release);
+            break;
+        // Analog triggers — Flycast's libretro core actually supports true analog
+        // L2/R2 via RETRO_DEVICE_ANALOG index 2, but our _analogStates array is
+        // [4][2][2] (left/right stick only). Expanding to index 3 just for DC
+        // triggers isn't worth the memory/complexity cost. Instead we digitize
+        // the trigger: >50% threshold = pressed. This loses analog granularity
+        // but is safe and functional for all bridge cores.
+        case 8:  // OEDCAnalogL
+            [self receiveLibretroButton:RETRO_DEVICE_ID_JOYPAD_L2 forPort:port pressed:(value > 0.5)];
+            break;
+        case 9:  // OEDCAnalogR
+            [self receiveLibretroButton:RETRO_DEVICE_ID_JOYPAD_R2 forPort:port pressed:(value > 0.5)];
+            break;
+        default:
+            break;
+    }
+}
+
+#pragma mark - NDS Touch Responder
+
+- (oneway void)didPushNDSButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didPushOEButton:button forPlayer:player];
+}
+- (oneway void)didReleaseNDSButton:(NSInteger)button forPlayer:(NSUInteger)player {
+    [self didReleaseOEButton:button forPlayer:player];
+}
 
 - (oneway void)didTouchScreenPoint:(OEIntPoint)point {
     _touchX = point.x;
@@ -1405,5 +1868,15 @@ static const NSUInteger OEGBButtonCount = sizeof(OEGBButtonToLibretro) / sizeof(
 - (oneway void)didReleaseTouch {
     _isTouching = NO;
 }
+
+#pragma mark - Mouse/Keyboard Stubs
+
+- (void)mouseMovedAtPoint:(OEIntPoint)aPoint {}
+- (void)leftMouseDownAtPoint:(OEIntPoint)aPoint {}
+- (void)leftMouseUpAtPoint:(OEIntPoint)aPoint {}
+- (void)rightMouseDownAtPoint:(OEIntPoint)aPoint {}
+- (void)rightMouseUpAtPoint:(OEIntPoint)aPoint {}
+- (void)keyDown:(unsigned short)keyCode characters:(NSString *)characters charactersIgnoringModifiers:(NSString *)charactersIgnoringModifiers flags:(NSEventModifierFlags)flags {}
+- (void)keyUp:(unsigned short)keyCode characters:(NSString *)characters charactersIgnoringModifiers:(NSString *)charactersIgnoringModifiers flags:(NSEventModifierFlags)flags {}
 
 @end
